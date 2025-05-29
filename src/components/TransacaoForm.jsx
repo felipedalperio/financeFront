@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import {useValues} from '../context/ValuesContext'
 
-export default function TransacaoModal({ onSubmit, onClose }) {
+export default function TransacaoModal({onClose }) {
+
+  const {novaTransacao} = useValues();
+
   const [categorias, setCategorias] = useState([{
     id: '60f5a3a3b4d1c24d8c9a0f13',
     nome: 'teste'
   }]);
+
   const [form, setForm] = useState({
     categoriaId: '',
     tipo: 'RECEITA',
@@ -13,18 +17,6 @@ export default function TransacaoModal({ onSubmit, onClose }) {
     valor: '',
     dataTransacao: new Date().toISOString().split('T')[0]
   });
-
-  useEffect(() => {
-    async function fetchCategorias() {
-      try {
-        const res = await axios.get('/api/categorias');
-        setCategorias(res.data);
-      } catch (err) {
-        console.error('Erro ao buscar categorias', err);
-      }
-    }
-    fetchCategorias();
-  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,7 +30,8 @@ export default function TransacaoModal({ onSubmit, onClose }) {
       valor: parseFloat(form.valor),
     };
 
-    await onSubmit(dataToSend);
+    await novaTransacao(dataToSend);
+
     setForm({
       categoriaId: '',
       tipo: 'RECEITA',
@@ -46,17 +39,18 @@ export default function TransacaoModal({ onSubmit, onClose }) {
       valor: '',
       dataTransacao: new Date().toISOString().split('T')[0]
     });
+    
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50 text-gray-700">
       <div className="absolute bg-white p-8 rounded-lg shadow-lg w-full max-w-md space-y-4">
-        <h2 className="text-xl font-semibold text-gray-700">Nova Transação</h2>
+        <h2 className="text-xl font-semibold">Nova Transação</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600">Categoria</label>
+            <label className="block ">Categoria</label>
             <select
               name="categoriaId"
               value={form.categoriaId}
@@ -74,7 +68,7 @@ export default function TransacaoModal({ onSubmit, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-600">Tipo</label>
+            <label className="block ">Tipo</label>
             <select
               name="tipo"
               value={form.tipo}
@@ -87,7 +81,7 @@ export default function TransacaoModal({ onSubmit, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-600">Descrição</label>
+            <label className="block ">Descrição</label>
             <input
               type="text"
               name="descricao"
@@ -99,7 +93,7 @@ export default function TransacaoModal({ onSubmit, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-600">Valor</label>
+            <label className="block ">Valor</label>
             <input
               type="number"
               step="0.01"
@@ -112,7 +106,7 @@ export default function TransacaoModal({ onSubmit, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-600">Data</label>
+            <label className="block ">Data</label>
             <input
               type="date"
               name="dataTransacao"

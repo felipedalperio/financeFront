@@ -6,8 +6,8 @@ import Grid from "./Grid";
 import BarChartTemplate from "./BarChartTemplate";
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useValues} from '../context/ValuesContext';
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 const bubbles = [
     { label: 'Moradia', size: 160, color: 'bg-black', top: '35%', left: '20%' },
@@ -20,38 +20,8 @@ const bubbles = [
 
 export default function Dashboard() {
     const { user } = useAuth();
-    const [receita, setReceita] = useState(0);
-    const [despesa, setDespesa] = useState(0);
+    const { despesa,  receita } = useValues();
 
-    useEffect(() => {
-        async function fetchDados() {
-            try {
-                const resReceita = await axios.get('/api/transacoes/receitas');
-                let valorReceita = 0;
-                resReceita.data.forEach(item => {
-                    valorReceita += item.valor;
-                });
-                setReceita(valorReceita);
-
-                const resDespesa = await axios.get('/api/transacoes/despesas');
-                let valorDespesa = 0;
-                resDespesa.data.forEach(item => {
-                    valorDespesa += item.valor;
-                });
-                setDespesa(valorDespesa);
-
-            } catch (err) {
-                console.error('Erro ao listar', err);
-            }
-        }
-
-        fetchDados();
-    }, []);
-
-
-    useEffect(() => {
-        console.log()
-    })
     return (
         <div className="px-10 flex flex-col h-screen w-full gap-4 " style={{
             background: 'linear-gradient(180deg, #1f273b 140px, #efefef 140px, #efefef 100%)'

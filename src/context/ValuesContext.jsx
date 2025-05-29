@@ -8,18 +8,24 @@ export function ValuesProvider({ children }) {
   const [valorAtual, setValorAtual] = useState(0);
   const [despesa, setDespesa] = useState(0);
   const [categorias, setCategorias] = useState([]);
+  const [filtroData, setFiltroData] = useState();
+  const [transacoes, setTranscaoes] = useState([]);
 
   useEffect(() => {
     async function fetchCategorias() {
       try {
-        const res = await axios.get('/api/categorias');
+       // const res = await axios.get('/api/transacoes/categorias');
         setCategorias(res.data);
       } catch (err) {
         console.error('Erro ao buscar categorias', err);
       }
     }
 
-    async function fetchDados() {
+    fetchCategorias();
+  }, []);
+
+  useEffect(() => {
+   async function fetchDados() {
       try {
         const resReceita = await axios.get('/api/transacoes/receitas');
         const totalReceita = resReceita.data.reduce((acc, item) => acc + item.valor, 0);
@@ -33,9 +39,18 @@ export function ValuesProvider({ children }) {
       }
     }
 
+    async function fetchTranscaoes() {
+      try {
+        const transacoes = await axios.get('/api/transacoes');
+        setTranscaoes(transacoes.data);
+      } catch (err) {
+        console.error('Erro ao listar dados', err);
+      }
+    }
+
     fetchDados();
-    fetchCategorias();
-  }, []);
+    fetchTranscaoes();
+  },[filtroData])
 
   const novaTransacao = async (data) => {
     try {
@@ -53,16 +68,17 @@ export function ValuesProvider({ children }) {
         setValorAtual((prev) => prev - parseFloat(data.valor));
       }
 
-      //aqui chamar o axios para atualizar o valor do usuario
+      const transacoes = await axios.get('/api/transacoes');
+      setTranscaoes(transacoes.data);
 
-      alert('Transação adicionada!');
+
     } catch (err) {
       console.error('Erro ao adicionar transação', err);
     }
   };
 
   return (
-    <ValuesContext.Provider value={{ novaTransacao, receita, despesa, categorias }}>
+    <ValuesContext.Provider value={{ novaTransacao, receita, despesa, categorias, transacoes }}>
       {children}
     </ValuesContext.Provider>
   );
