@@ -1,0 +1,73 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+
+const ValuesContext = createContext();
+
+export function ValuesProvider({ children }) {
+  const [receita, setReceita] = useState(0);
+  const [valorAtual, setValorAtual] = useState(0);
+  const [despesa, setDespesa] = useState(0);
+  const [categorias, setCategorias] = useState([]);
+
+  useEffect(() => {
+    async function fetchCategorias() {
+      try {
+        const res = await axios.get('/api/categorias');
+        setCategorias(res.data);
+      } catch (err) {
+        console.error('Erro ao buscar categorias', err);
+      }
+    }
+
+    async function fetchDados() {
+      try {
+        const resReceita = await axios.get('/api/transacoes/receitas');
+        const totalReceita = resReceita.data.reduce((acc, item) => acc + item.valor, 0);
+        setReceita(totalReceita);
+
+        const resDespesa = await axios.get('/api/transacoes/despesas');
+        const totalDespesa = resDespesa.data.reduce((acc, item) => acc + item.valor, 0);
+        setDespesa(totalDespesa);
+      } catch (err) {
+        console.error('Erro ao listar dados', err);
+      }
+    }
+
+    fetchDados();
+    fetchCategorias();
+  }, []);
+
+  const novaTransacao = async (data) => {
+    try {
+      await axios.post('/api/transacoes', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (data.tipo === 'RECEITA') {
+        setReceita((prev) => prev + parseFloat(data.valor));
+        setValorAtual((prev) => prev + parseFloat(data.valor));
+      } else if (data.tipo === 'DESPESA') {
+        setDespesa((prev) => prev + parseFloat(data.valor));
+        setValorAtual((prev) => prev - parseFloat(data.valor));
+      }
+
+      //aqui chamar o axios para atualizar o valor do usuario
+
+      alert('Transação adicionada!');
+    } catch (err) {
+      console.error('Erro ao adicionar transação', err);
+    }
+  };
+
+  return (
+    <ValuesContext.Provider value={{ novaTransacao, receita, despesa, categorias }}>
+      {children}
+    </ValuesContext.Provider>
+  );
+}
+
+export function useValues() {
+  return useContext(ValuesContext);
+}
