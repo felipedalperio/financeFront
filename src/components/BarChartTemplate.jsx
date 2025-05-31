@@ -1,76 +1,101 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { SlOptions } from "react-icons/sl";
+import { useValues } from '../context/ValuesContext'
 
 export default function BarChartTemplate() {
+
+    const { charts } = useValues();
+
 
     const data = [
         {
             name: 'Jan',
-            uv: 4000,
-            pv: 2400,
+            despesa: 4000,
+            receita: 2400,
             amt: 2400,
         },
         {
             name: 'Mar',
-            uv: 3000,
-            pv: 1398,
+            despesa: 3000,
+            receita: 1398,
             amt: 2210,
         },
         {
             name: 'Abr',
-            uv: 2000,
-            pv: 9800,
+            despesa: 2000,
+            receita: 9800,
             amt: 2290,
         },
         {
             name: 'May',
-            uv: 2780,
-            pv: 3908,
+            despesa: 2780,
+            receita: 3908,
             amt: 2000,
         },
         {
             name: 'Jun',
-            uv: 1890,
-            pv: 4800,
+            despesa: 1890,
+            receita: 4800,
             amt: 2181,
         },
         {
             name: 'Jul',
-            uv: 2390,
-            pv: 3800,
+            despesa: 2390,
+            receita: 3800,
             amt: 2500,
         },
         {
             name: 'Aug',
-            uv: 3490,
-            pv: 4300,
+            despesa: 3490,
+            receita: 4300,
             amt: 2100,
         },
         {
             name: 'Set',
-            uv: 3490,
-            pv: 4300,
+            despesa: 3490,
+            receita: 4300,
             amt: 2100,
         },
         {
             name: 'Out',
-            uv: 3490,
-            pv: 4300,
+            despesa: 3490,
+            receita: 4300,
             amt: 2100,
         },
         {
             name: 'Nov',
-            uv: 3490,
-            pv: 4300,
+            despesa: 3490,
+            receita: 4300,
             amt: 2100,
         },
         {
             name: 'Dec',
-            uv: 3490,
-            pv: 4300,
+            despesa: 3490,
+            receita: 4300,
             amt: 2100,
         },
     ];
+
+
+    // Tooltip customizado
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const receita = payload.find(p => p.dataKey === 'receita')?.value || 0;
+            const despesa = payload.find(p => p.dataKey === 'despesa')?.value || 0;
+            const saldo = receita - despesa;
+
+            return (
+                <div style={{ background: '#fff', border: '1px solid #ccc', padding: 10, borderRadius: 4 }}>
+                    <strong>{label}</strong><br />
+                    Entrada: <strong>{receita}</strong><br />
+                    Saída: <strong>{despesa}</strong><br />
+                    Saldo: <strong style={{ color: saldo < 0 ? '#cd4f4f' : '#63b873' }}>{saldo}</strong><br />
+                </div>
+            );
+        }
+
+        return null;
+    };
     return (
         <div className="col-span-4 bg-white rounded-lg">
             <div className="flex justify-between align-center pb-12 px-4">
@@ -79,15 +104,15 @@ export default function BarChartTemplate() {
                 <div className="flex gap-5 items-center">
                     <div className="flex gap-2">
                         <div className="flex items-center gap-2">
-                            <div className="bg-[#c1c1c1] rounded-full h-2 w-2"></div>
-                            <span className="text-sm text-[#c1c1c1]">Entradas</span>
+                            <div className="bg-[#63b873] rounded-full h-2 w-2"></div>
+                            <span className="text-sm text-[#63b873]">Entradas</span>
                         </div>
                     </div>
 
                     <div className="flex gap-2">
                         <div className="flex items-center gap-2">
-                            <div className="bg-[#1f273b] rounded-full h-2 w-2"></div>
-                            <span className="text-sm text-[#1f273b]">Saídas</span>
+                            <div className="bg-[#cd4f4f] rounded-full h-2 w-2"></div>
+                            <span className="text-sm text-[#cd4f4f]">Saídas</span>
                         </div>
                     </div>
 
@@ -96,18 +121,22 @@ export default function BarChartTemplate() {
 
             </div>
             <ResponsiveContainer width="100%" height={290}>
-                <BarChart
-                    data={data}
-                >
-
+                <BarChart data={charts} barCategoryGap={0} barGap={0}>
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip cursor={false} // Remove o destaque cinza
-                        contentStyle={{ background: "#fff", borderRadius: "4px" }} />
-                    <Bar dataKey="pv" stackId="a" fill="#1f273b" barSize={40} name="Saída" />
-                    <Bar dataKey="uv" stackId="a" fill="#c1c1c1" barSize={40} name="Entrada" />
+                    <Tooltip
+                        content={<CustomTooltip />}
+                        cursor={false}
+                        contentStyle={{ background: "#fff", borderRadius: "4px" }}
+                    />
+
+                    {/* As duas barras agora vão se sobrepor sem espaçamento lateral */}
+                    <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
+                    <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
                 </BarChart>
             </ResponsiveContainer>
+
+
         </div>
     )
 }

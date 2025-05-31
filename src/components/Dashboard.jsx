@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useValues} from '../context/ValuesContext';
 import { useEffect, useState } from "react";
+import Orcamento from "./Orcamento";
 
 const bubbles = [
     { label: 'Moradia', size: 160, color: 'bg-black', top: '35%', left: '20%' },
@@ -58,9 +59,9 @@ export default function Dashboard() {
 
                     </div>
                     <div className="flex bg-white rounded-lg py-4 flex-col min-h-100 overflow-hidden">
-                        <h3 className="text-gray-700 font-semibold mb-1 px-3">Proporção de despesas</h3>
+                        <h3 className="text-gray-700 font-semibold mb-1 px-3">Orçamentos</h3>
                         <div className="relative w-full h-[400px] flex justify-center items-center">
-                            {bubbles.map((b, i) => (
+                            {/*bubbles.map((b, i) => (
                                 <motion.div
                                     key={i}
                                     className={`absolute ${b.color}  opacity-75 text-white text-center rounded-full flex justify-center items-center`}
@@ -77,7 +78,9 @@ export default function Dashboard() {
                                 >
                                     <span className="text-sm px-1">{b.label}</span>
                                 </motion.div>
-                            ))}
+                            )) */}
+
+                            <Orcamento />
 
                         </div>
                     </div>

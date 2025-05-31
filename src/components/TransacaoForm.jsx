@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import {useValues} from '../context/ValuesContext'
 
+
 export default function TransacaoModal({onClose }) {
 
-  const {novaTransacao} = useValues();
+  const {novaTransacao, categorias} = useValues();
 
-  const [categorias, setCategorias] = useState([{
-    id: '60f5a3a3b4d1c24d8c9a0f13',
-    nome: 'teste'
-  }]);
 
   const [form, setForm] = useState({
     categoriaId: '',
