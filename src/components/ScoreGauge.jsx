@@ -15,7 +15,7 @@ const data = [
 
 export default function ScoreGauge() {
     return (
-        <div className="flex-1 lg:flex-none bg-white text-gray-600 rounded-lg relative h-58 flex flex-col justify-center items-center">
+        <div className="flex-1 lg:flex-none bg-white text-gray-600 rounded-lg relative min-h-58 flex flex-col justify-center items-center">
             
              <h3 className=" text-lg font-bold pt-2">Score de Risco</h3>
             

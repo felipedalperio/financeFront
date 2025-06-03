@@ -30,22 +30,30 @@ export default function Dashboard() {
     return (
         <div className="lg:px-5 lg:bg-[#efefef] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
 
-            <div className="mb-5 flex gap-3 items-center text-white">
-                <img className="rounded-4xl" alt="" src="https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png" width="80" height="80" />
-                <div className="flex justify-between w-full">
-                    <div className="flex flex-col">
-                        <span className="font-bold text-xl lg:text-gray-800"> Hi, Felipe! </span>
-                        <span className="italic text-sm lg:text-gray-500"> Today is friday 25 june 2025 </span>
+            <div className=" px-2 mb-5 flex gap-3 items-center text-white flex-col">
+                <div className="hidden md:flex gap-2 lg:text-[#4e4e4e] self-end">
+                    <FaRegBell size={25} />
+                    <CgProfile size={25} />
+                </div>
+                <div className="flex justify-between w-full gap-4 flex-col md:flex-row">
+                    <div className="flex gap-2">
+                        <img className="rounded-4xl w-14 h-14 md:w-20 md:h-20" alt="" src="https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png" />
+                        <div className="flex items-center justify-between w-full">
+                            <div className="flex flex-col">
+                                <span className="font-bold text-md md:text-xl lg:text-gray-800"> Hi, {user.nome}! </span>
+                                <span className="italic text-xs md:text-sm lg:text-gray-500"> Today is friday 25 june 2025 </span>
+                            </div>
+                            <div className="flex gap-1 md:hidden self-start">
+                                <FaRegBell size={25} />
+                                <CgProfile size={25} />
+                            </div>
+                        </div>
                     </div>
                     <div className=" flex flex-col gap-3 items-end">
-                        <div className="flex gap-2 lg:text-[#4e4e4e]">
-                            <FaRegBell size={25} />
-                            <CgProfile size={25} />
-                        </div>
                         <div className="flex gap-3 p-2 bg-[#ffffff] rounded-2xl items-center text-[#525252]">
                             <CiCalendar size={20} />
-                            <span className="text-gray-500 text-sm">Jan 2024 - Dec 2024 </span>
-                            <IoIosArrowDown size={20}/>
+                            <span className="text-gray-500 text-xs md:text-sm">Jan 2024 - Dec 2024 </span>
+                            <IoIosArrowDown size={20} />
                         </div>
                     </div>
 
@@ -67,25 +75,25 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="flex gap-2 lg:flex-col bg-white  lg:gap-6 rounded-t-2xl p-3 pt-6 lg:rounded-none lg:p-0 lg:bg-[#ededed]">
-                        <div className="w-55 lg:w-55 px-3 pb-2 py-1 bg-[#75bf64] text-gray-100 rounded-lg ">
+                        <div className="w-full max-w-55  px-2 md:px-3 pb-2 py-1 bg-[#75bf64] text-gray-100 rounded-lg ">
                             <div className="flex justify-between italic items-center text-gray-200 pr-3">
                                 <span>Entrada</span>
-                                <BsCashCoin size={23} className="relative top-1" />
+                                <BsCashCoin className="relative top-1 text-xl md:text-2xl" />
                             </div>
-                            <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ededed] ">
+                            <div className="font-semibold flex gap-2 md:gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ededed] ">
                                 <span className="text-md">R$</span>
-                                <span className="text-3xl">{formatarValor(receita)}</span>
+                                <span className="text-xl md:text-3xl">{formatarValor(receita)}</span>
                             </div>
 
                         </div>
-                        <div className="w-55 px-3 pb-2 py-1 bg-gray-800 text-gray-100 rounded-lg ">
+                        <div className="w-full max-w-55 px-2 md:px-3 pb-2 py-1 bg-gray-800 text-gray-100 rounded-lg ">
                             <div className="flex italic justify-between items-center text-gray-200 pr-3">
                                 <span>Saídas</span>
-                                <FaMoneyBillTransfer size={23} />
+                                <FaMoneyBillTransfer className="text-xl md:text-2xl" />
                             </div>
-                            <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-gray-800 border-b-[#898989] ">
+                            <div className="font-semibold flex gap-2 md:gap-5 items-end pb-2  border-1 border-gray-800 border-b-[#898989] ">
                                 <span className="text-xl">R$</span>
-                                <span className="text-3xl">{formatarValor(despesa)}</span>
+                                <span className="text-xl md:text-3xl">{formatarValor(despesa)}</span>
                             </div>
 
                         </div>
@@ -130,7 +138,7 @@ export default function Dashboard() {
                         <Grid />
                     </div>
 
-                    <div className="lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
+                    <div className="flex-col md:flex-row lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
                         <DonutChart />
                         <ScoreGauge />
                     </div>

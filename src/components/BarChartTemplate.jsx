@@ -110,10 +110,10 @@ export default function BarChartTemplate() {
 
     return (
         <div className="bg-white rounded-lg">
-            <div className="flex justify-between align-center pb-12 px-4 ">
-                <span className="text-xl font-bold text-gray-600">Entradas vs Saídas</span>
+            <div className="flex flex-col md:flex-row justify-between align-center pb-12 px-4 ">
+                <span className="text-md md:text-xl font-bold text-gray-600">Entradas vs Saídas</span>
 
-                <div className="flex gap-5 items-center">
+                <div className="flex gap-2 md:gap-5 items-center self-end">
                     <div className="flex gap-2">
                         <div className="flex items-center gap-2">
                             <div className="bg-[#63b873] rounded-full h-2 w-2"></div>
