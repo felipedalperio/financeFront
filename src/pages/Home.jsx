@@ -1,4 +1,5 @@
-import Dashboard from "../components/dashboard";
+
+import Dashboard from "../components/Dashboard";
 import Menu from "../components/Menu";
 import MenuMobile from "../components/MenuMobile";
 import { ValuesProvider } from '../context/ValuesContext';
