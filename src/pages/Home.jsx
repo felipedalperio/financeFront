@@ -1,12 +1,20 @@
 import Dashboard from "../components/dashboard";
 import Menu from "../components/Menu";
+import MenuMobile from "../components/MenuMobile";
 import { ValuesProvider } from '../context/ValuesContext';
 
 export default function Home() {
   return (
     <ValuesProvider>
-      <Menu />
-      <Dashboard />
+      <div className="flex">
+        <div className="hidden xl:flex">
+          <Menu />
+        </div>
+        <div className="flex xl:hidden">
+          <MenuMobile />
+        </div>
+        <Dashboard />
+      </div>
     </ValuesProvider>
   )
 }

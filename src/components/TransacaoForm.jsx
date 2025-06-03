@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import {useValues} from '../context/ValuesContext'
+import { useValues } from '../context/ValuesContext'
 
 
-export default function TransacaoModal({onClose }) {
+export default function TransacaoModal({ onClose }) {
 
-  const {novaTransacao, categorias} = useValues();
+  const { novaTransacao, categorias } = useValues();
 
 
   const [form, setForm] = useState({
@@ -21,7 +21,7 @@ export default function TransacaoModal({onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const dataToSend = {
       ...form,
       valor: parseFloat(form.valor),
@@ -36,7 +36,7 @@ export default function TransacaoModal({onClose }) {
       valor: '',
       dataTransacao: new Date().toISOString().split('T')[0]
     });
-    
+
     onClose();
   };
 
@@ -46,24 +46,6 @@ export default function TransacaoModal({onClose }) {
         <h2 className="text-xl font-semibold">Nova Transação</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block ">Categoria</label>
-            <select
-              name="categoriaId"
-              value={form.categoriaId}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
-              required
-            >
-              <option value="">Selecione</option>
-              {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div>
             <label className="block ">Tipo</label>
             <select
@@ -76,6 +58,26 @@ export default function TransacaoModal({onClose }) {
               <option value="DESPESA">Despesa</option>
             </select>
           </div>
+
+          {form.tipo == "DESPESA" && (
+            <div>
+              <label className="block ">Categoria</label>
+              <select
+                name="categoriaId"
+                value={form.categoriaId}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border rounded"
+              >
+                <option value="">Selecione</option>
+                {categorias.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
 
           <div>
             <label className="block ">Descrição</label>

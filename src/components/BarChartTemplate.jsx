@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { SlOptions } from "react-icons/sl";
 import { useValues } from '../context/ValuesContext'
+import { formatarValorCompleto } from '../utils/Util';
 
 export default function BarChartTemplate() {
 
@@ -87,18 +88,29 @@ export default function BarChartTemplate() {
             return (
                 <div style={{ background: '#fff', border: '1px solid #ccc', padding: 10, borderRadius: 4 }}>
                     <strong>{label}</strong><br />
-                    Entrada: <strong>{receita}</strong><br />
-                    Saída: <strong>{despesa}</strong><br />
-                    Saldo: <strong style={{ color: saldo < 0 ? '#cd4f4f' : '#63b873' }}>{saldo}</strong><br />
+                    Entrada: <strong>{formatarValorCompleto(receita)}</strong><br />
+                    Saída: <strong>{formatarValorCompleto(despesa)}</strong><br />
+                    Saldo: <strong style={{ color: saldo < 0 ? '#cd4f4f' : '#63b873' }}>{formatarValorCompleto(saldo)}</strong><br />
                 </div>
             );
         }
 
         return null;
     };
+
+    const formatarAbreviado = (valor) => {
+        if (Math.abs(valor) >= 1_000_000) {
+            return (valor / 1_000_000).toFixed(1).replace('.0', '') + 'M';
+        } else if (Math.abs(valor) >= 1_000) {
+            return (valor / 1_000).toFixed(1).replace('.0', '') + 'K';
+        } else {
+            return valor.toString();
+        }
+    };
+
     return (
-        <div className="col-span-4 bg-white rounded-lg">
-            <div className="flex justify-between align-center pb-12 px-4">
+        <div className="bg-white rounded-lg">
+            <div className="flex justify-between align-center pb-12 px-4 ">
                 <span className="text-xl font-bold text-gray-600">Entradas vs Saídas</span>
 
                 <div className="flex gap-5 items-center">
@@ -120,23 +132,23 @@ export default function BarChartTemplate() {
                 </div>
 
             </div>
-            <ResponsiveContainer width="100%" height={290}>
+            <div className='ml-[-25px] lg:ml-0'>
+                <ResponsiveContainer width="100%" height={290}>
                 <BarChart data={charts} barCategoryGap={0} barGap={0}>
                     <XAxis dataKey="name" />
-                    <YAxis />
+                    <YAxis tickFormatter={formatarAbreviado} />
+
                     <Tooltip
                         content={<CustomTooltip />}
                         cursor={false}
                         contentStyle={{ background: "#fff", borderRadius: "4px" }}
                     />
 
-                    {/* As duas barras agora vão se sobrepor sem espaçamento lateral */}
                     <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
                     <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
                 </BarChart>
             </ResponsiveContainer>
-
-
+            </div>
         </div>
     )
 }

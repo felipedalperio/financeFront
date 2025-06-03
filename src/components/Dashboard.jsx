@@ -3,12 +3,16 @@ import { FaMoneyBillTransfer } from "react-icons/fa6";
 import DonutChart from "./DonutChart";
 import ScoreGauge from "./ScoreGauge";
 import Grid from "./Grid";
-import BarChartTemplate from "./BarChartTemplate";
 import { motion } from 'framer-motion';
+import BarChartTemplate from "./BarChartTemplate";
 import { useAuth } from '../context/AuthContext';
-import { useValues} from '../context/ValuesContext';
-import { useEffect, useState } from "react";
+import { useValues } from '../context/ValuesContext';
 import Orcamento from "./Orcamento";
+import { CgProfile } from "react-icons/cg";
+import { FaRegBell } from "react-icons/fa";
+import { CiCalendar } from "react-icons/ci";
+import { IoIosArrowDown } from "react-icons/io";
+import { formatarValor } from '../utils/Util';
 
 const bubbles = [
     { label: 'Moradia', size: 160, color: 'bg-black', top: '35%', left: '20%' },
@@ -21,47 +25,88 @@ const bubbles = [
 
 export default function Dashboard() {
     const { user } = useAuth();
-    const { despesa,  receita } = useValues();
+    const { despesa, receita } = useValues();
 
     return (
-        <div className="px-10 flex flex-col h-screen w-full gap-4 " style={{
-            background: 'linear-gradient(180deg, #1f273b 140px, #efefef 140px, #efefef 100%)'
-        }}>
+        <div className="lg:px-5 lg:bg-[#efefef] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
 
-            <div className="flex justify-between items-center pb-3 px-3 italic text-gray-200">
-                <span className="text-3xl">Hi, {user?.nome} seu saldo é {user.saldoAtual} R$</span>
-                <span className="text-sm">Today is Friday 15 jan 2025</span>
+            <div className="mb-5 flex gap-3 items-center text-white">
+                <img className="rounded-4xl" alt="" src="https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png" width="80" height="80" />
+                <div className="flex justify-between w-full">
+                    <div className="flex flex-col">
+                        <span className="font-bold text-xl lg:text-gray-800"> Hi, Felipe! </span>
+                        <span className="italic text-sm lg:text-gray-500"> Today is friday 25 june 2025 </span>
+                    </div>
+                    <div className=" flex flex-col gap-3 items-end">
+                        <div className="flex gap-2 lg:text-[#4e4e4e]">
+                            <FaRegBell size={25} />
+                            <CgProfile size={25} />
+                        </div>
+                        <div className="flex gap-3 p-2 bg-[#ffffff] rounded-2xl items-center text-[#525252]">
+                            <CiCalendar size={20} />
+                            <span className="text-gray-500 text-sm">Jan 2024 - Dec 2024 </span>
+                            <IoIosArrowDown size={20}/>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
+            <div className="flex lg:gap-6 flex-col lg:flex-row ">
+                <div className="flex flex-col gap-2 lg:gap-6 w-full lg:w-1/4 ">
 
-            <div className="flex gap-6">
-                <div className="flex flex-col gap-6 w-1/4 ">
-                    <div className="w-70 px-3 pb-2 py-1 bg-[#75bf64] text-gray-100 rounded-lg ">
-                        <div className="flex justify-between items-center text-gray-100 pt-1 pr-3">
-                            <span>Entrada</span>
-                            <BsCashCoin size={23} className="relative top-1" />
-                        </div>
-                        <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ededed] ">
-                            <span className="text-xl">R$</span>
-                            <span className="text-4xl">{receita}</span>
-                        </div>
+                    <div className="text-white">
+                        <div className="flex items-end" >
+                            <span className="text-md lg:text-gray-500 font-bold mb-[-2px] ml-3">Saldo Total</span>
 
+                        </div>
+                        <div className="flex font-bold items-end pb-3 px-3">
+                            <span className="text-lg mr-4 lg:text-gray-500"> R$ </span>
+                            <span className="text-3xl lg:text-gray-800"> {formatarValor(receita - despesa)} </span>
+                        </div>
                     </div>
-                    <div className="w-70 px-3 pb-2 py-1 bg-gray-800 text-gray-100 rounded-lg ">
-                        <div className="flex justify-between items-center text-gray-100 pt-1 pr-3">
-                            <span>Saídas</span>
-                            <FaMoneyBillTransfer size={23} />
-                        </div>
-                        <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-gray-800 border-b-[#898989] ">
-                            <span className="text-xl">R$</span>
-                            <span className="text-4xl">{despesa}</span>
-                        </div>
+                    <div className="flex gap-2 lg:flex-col bg-white  lg:gap-6 rounded-t-2xl p-3 pt-6 lg:rounded-none lg:p-0 lg:bg-[#ededed]">
+                        <div className="w-55 lg:w-55 px-3 pb-2 py-1 bg-[#75bf64] text-gray-100 rounded-lg ">
+                            <div className="flex justify-between italic items-center text-gray-200 pr-3">
+                                <span>Entrada</span>
+                                <BsCashCoin size={23} className="relative top-1" />
+                            </div>
+                            <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ededed] ">
+                                <span className="text-md">R$</span>
+                                <span className="text-3xl">{formatarValor(receita)}</span>
+                            </div>
 
+                        </div>
+                        <div className="w-55 px-3 pb-2 py-1 bg-gray-800 text-gray-100 rounded-lg ">
+                            <div className="flex italic justify-between items-center text-gray-200 pr-3">
+                                <span>Saídas</span>
+                                <FaMoneyBillTransfer size={23} />
+                            </div>
+                            <div className="font-semibold flex gap-5  items-end pb-2  border-1 border-gray-800 border-b-[#898989] ">
+                                <span className="text-xl">R$</span>
+                                <span className="text-3xl">{formatarValor(despesa)}</span>
+                            </div>
+
+                        </div>
                     </div>
-                    <div className="flex bg-white rounded-lg py-4 flex-col min-h-100 overflow-hidden">
+                    <div className="flex hidden lg:flex bg-white rounded-lg py-4 flex-col overflow-hidden">
                         <h3 className="text-gray-700 font-semibold mb-1 px-3">Orçamentos</h3>
-                        <div className="relative w-full h-[400px] flex justify-center items-center">
-                            {/*bubbles.map((b, i) => (
+                        <div className="relative w-full min-h-[200px] flex justify-center items-center">
+                            <Orcamento />
+
+                        </div>
+                    </div>
+
+                </div>
+                <div className="pb-20 lg:pb-0 bg-white lg:bg-transparent grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 lg:gap-4 w-full">
+                    <div className="row-start-1 col-span-6 lg:col-span-4 xl:col-span-4 bg-white rounded-lg py-4">
+                        <BarChartTemplate />
+                    </div>
+                    <div className="row-start-2 lg:row-start-1 col-span-6  lg:col-span-2 flex flex-col gap-4">
+                        <div className="bg-white rounded-lg py-4 relative w-full h-[400px] flex items-center flex-col">
+                            <h3 className="mb-1 px-3 text-xl font-bold text-gray-600">Proporção de Despesas</h3>
+                            {bubbles.map((b, i) => (
                                 <motion.div
                                     key={i}
                                     className={`absolute ${b.color}  opacity-75 text-white text-center rounded-full flex justify-center items-center`}
@@ -78,41 +123,16 @@ export default function Dashboard() {
                                 >
                                     <span className="text-sm px-1">{b.label}</span>
                                 </motion.div>
-                            )) */}
-
-                            <Orcamento />
-
+                            ))}
                         </div>
                     </div>
-
-                </div>
-                <div className="grid grid-cols-5 gap-4 w-full">
-                    <div className="col-span-4 bg-white rounded-lg py-4">
-                        <BarChartTemplate />
-                    </div>
-                    <div className="col-span-1 flex flex-col gap-4">
-                        <div className="bg-white text-white p-4 rounded-lg">
-                            <ScoreGauge />
-                        </div>
-                        <div className="bg-white p-4 rounded-lg">
-                            <h3 className="text-gray-600 font-bold mb-3">Economia</h3>
-                            <div className="flex justify-between ">
-                                <div className="box bg-yellow-500 text-white flex items-center justify-center p-2 rounded-sm font-bold">30%</div>
-                                <div className="flex flex-col ">
-                                    <div className="text-gray-700  font-semibold flex gap-2 justify-center items-end">
-                                        <span className="text-sm">R$</span>
-                                        <span className="text-2xl">2049,34</span>
-                                    </div>
-                                    <span className="text-sm text-gray-400">Economia no periodo</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white text-white p-4 rounded-lg col-span-3">
+                    <div className="col-span-6 row-start-4  lg:row-start-2 bg-white text-white p-4 rounded-lg lg:col-span-4">
                         <Grid />
                     </div>
-                    <div className="col-span-2">
+
+                    <div className="lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
                         <DonutChart />
+                        <ScoreGauge />
                     </div>
                 </div>
             </div>
