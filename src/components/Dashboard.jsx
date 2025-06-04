@@ -139,7 +139,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex-col md:flex-row lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
-                        <DonutChart />
+                        <DonutChart despesa={despesa} receita={receita}/>
                         <ScoreGauge />
                     </div>
                 </div>

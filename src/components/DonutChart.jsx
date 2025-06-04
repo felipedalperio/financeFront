@@ -12,10 +12,17 @@ const data = [
 
 const COLORS = ['#212a38', '#d3d3d3'];
 
-export default function DonutChart() {
-    const total = data.reduce((acc, item) => acc + item.value, 0);
-    const saida = data.find(item => item.name === 'Saídas')?.value || 0;
-    const percentage = ((saida / total) * 100).toFixed(0);
+export default function DonutChart({ despesa, receita }) {
+    //const total = data.reduce((acc, item) => acc + item.value, 0);
+    //const saida = data.find(item => item.name === 'Saídas')?.value || 0;
+    
+    const percentageReceita = ((((despesa * -1) + receita) / receita) * 100).toFixed(0);
+    const percentageDespesa = ((despesa / receita) * 100).toFixed(0);
+
+    const data = [
+        { name: 'Saídas', value: parseInt(percentageDespesa)},
+        { name: 'Entradas', value: percentageReceita > 0 ? parseInt(percentageReceita) : 0 },
+    ];
 
     return (
         <div className="bg-white text-white rounded-lg p-4 flex-1">
@@ -55,7 +62,7 @@ export default function DonutChart() {
 
                     {/* Texto centralizado no donut */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[16px] font-bold text-gray-800">
-                        {percentage}%
+                        {percentageDespesa}%
                     </div>
                 </div>
             </div>
