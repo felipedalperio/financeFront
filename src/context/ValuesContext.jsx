@@ -64,43 +64,39 @@ export function ValuesProvider({ children }) {
   }, []);
 
   const novaTransacao = async (data) => {
-    try {
-      await axios.post('/api/transacoes', data, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+  try {
+    await axios.post('/api/transacoes', data, {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-      setTranscaoes((prev) => [...prev, data]);
+    // Adiciona id único
+    const transacaoComId = { ...data, id: Date.now() };
 
-      if (data.tipo === 'RECEITA') {
-        setReceita((prev) => prev + parseFloat(data.valor));
-      } else if (data.tipo === 'DESPESA') {
-        setDespesa((prev) => prev + parseFloat(data.valor));
-      }
+    setTranscaoes((prev) => [...prev, transacaoComId]);
 
-      const initialData = monthNames.map((name) => ({
-          name,
-          receita: 0,
-          despesa: 0,
-        }));
-
-      transacoes.forEach((transacao) => {
-          const [dia, mes, ano] = transacao.dataTransacao.split('/');
-          const mesIndex = parseInt(mes, 10) - 1;
-
-          if (transacao.tipo === 'RECEITA') {
-            initialData[mesIndex].receita += transacao.valor;
-          } else if (transacao.tipo === 'DESPESA') {
-            initialData[mesIndex].despesa += transacao.valor;
-          }
-        });
-
-        setCharts(initialData);
-
-    } catch (err) {
-      console.error('Erro ao adicionar transação', err);
+    if (data.tipo === 'RECEITA') {
+      setReceita((prev) => prev + parseFloat(data.valor));
+    } else if (data.tipo === 'DESPESA') {
+      setDespesa((prev) => prev + parseFloat(data.valor));
     }
-  };
 
+    const [dia, mes, ano] = data.dataTransacao.split('/');
+    const mesIndex = parseInt(mes, 10) - 1;
+
+    setCharts((prev) => {
+      const updated = [...prev];
+      if (data.tipo === 'RECEITA') {
+        updated[mesIndex].receita += parseFloat(data.valor);
+      } else if (data.tipo === 'DESPESA') {
+        updated[mesIndex].despesa += parseFloat(data.valor);
+      }
+      return updated;
+    });
+
+  } catch (err) {
+    console.error('Erro ao adicionar transação', err);
+  }
+};
 
   const deletarTransacao = async (id) => {
     try {
