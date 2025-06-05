@@ -12,7 +12,6 @@ export function ValuesProvider({ children }) {
   const [transacoes, setTranscaoes] = useState([]);
   const [charts, setCharts] = useState([]);
 
-  // Mapeamento de número do mês para nome
   const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   useEffect(() => {
@@ -24,69 +23,72 @@ export function ValuesProvider({ children }) {
         console.error('Erro ao buscar categorias', err);
       }
     }
-    fetchCategorias()
-    refreshDados();
-  }, []);
+    async function fetchDados() {
+      try {
+        const resReceita = await axios.get('/api/transacoes/receitas');
+        const totalReceita = resReceita.data.reduce((acc, item) => acc + item.valor, 0);
+        setReceita(totalReceita);
 
-  async function refreshDados() {
-    try {
-      const resReceita = await axios.get('/api/transacoes/receitas');
-      const totalReceita = resReceita.data.reduce((acc, item) => acc + item.valor, 0);
-      setReceita(totalReceita);
+        const resDespesa = await axios.get('/api/transacoes/despesas');
+        const totalDespesa = resDespesa.data.reduce((acc, item) => acc + item.valor, 0);
+        setDespesa(totalDespesa);
 
-      const resDespesa = await axios.get('/api/transacoes/despesas');
-      const totalDespesa = resDespesa.data.reduce((acc, item) => acc + item.valor, 0);
-      setDespesa(totalDespesa);
+        const tras = await axios.get('/api/transacoes/listar/false');
+        setTranscaoes(tras.data);
 
-      const tras = await axios.get('/api/transacoes/listar/false');
-      setTranscaoes(tras.data);
+        const initialData = monthNames.map((name) => ({
+          name,
+          receita: 0,
+          despesa: 0,
+        }));
 
-      const initialData = monthNames.map((name) => ({
-        name,
-        receita: 0,
-        despesa: 0,
-      }));
+        tras.data.forEach((transacao) => {
+          const [dia, mes, ano] = transacao.dataTransacao.split('/');
+          const mesIndex = parseInt(mes, 10) - 1;
 
-      const dadosMensais = [...initialData];
+          if (transacao.tipo === 'RECEITA') {
+            initialData[mesIndex].receita += transacao.valor;
+          } else if (transacao.tipo === 'DESPESA') {
+            initialData[mesIndex].despesa += transacao.valor;
+          }
+        });
 
-      tras.data.forEach((transacao) => {
-        const [dia, mes, ano] = transacao.dataTransacao.split('/');
-        const mesIndex = parseInt(mes, 10) - 1;
-
-        if (transacao.tipo === 'RECEITA') {
-          dadosMensais[mesIndex].receita += transacao.valor;
-        } else if (transacao.tipo === 'DESPESA') {
-          dadosMensais[mesIndex].despesa += transacao.valor;
-        }
-      });
-
-      setCharts(dadosMensais);
-    } catch (err) {
-      console.error('Erro ao atualizar dados', err);
+        setCharts(initialData);
+      } catch (err) {
+        console.error('Erro ao atualizar dados', err);
+      }
     }
-  }
 
+    fetchCategorias();
+    fetchDados();
+  }, []);
 
   const novaTransacao = async (data) => {
     try {
-
       await axios.post('/api/transacoes', data, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      await refreshDados();
-     // if (data.tipo === 'RECEITA') {
-     //   setReceita((prev) => prev + parseFloat(data.valor));
-     //   setValorAtual((prev) => prev + parseFloat(data.valor));
-     // } else if (data.tipo === 'DESPESA') {
-     //   setDespesa((prev) => prev + parseFloat(data.valor));
-     //   setValorAtual((prev) => prev - parseFloat(data.valor));
-     // }
-//
-     // const transacoes = await axios.get('/api/transacoes');
-     // setTranscaoes(transacoes.data);
+      setTranscaoes((prev) => [...prev, data]);
+
+      if (data.tipo === 'RECEITA') {
+        setReceita((prev) => prev + parseFloat(data.valor));
+      } else if (data.tipo === 'DESPESA') {
+        setDespesa((prev) => prev + parseFloat(data.valor));
+      }
+
+      const [dia, mes, ano] = data.dataTransacao.split('/');
+      const mesIndex = parseInt(mes, 10) - 1;
+
+      setCharts((prev) => {
+        const updated = [...prev];
+        if (data.tipo === 'RECEITA') {
+          updated[mesIndex].receita += parseFloat(data.valor);
+        } else if (data.tipo === 'DESPESA') {
+          updated[mesIndex].despesa += parseFloat(data.valor);
+        }
+        return updated;
+      });
 
     } catch (err) {
       console.error('Erro ao adicionar transação', err);
@@ -95,17 +97,50 @@ export function ValuesProvider({ children }) {
 
   const deletarTransacao = async (id) => {
     try {
+      const transacao = transacoes.find(t => t.id === id);
+      if (!transacao) {
+        console.warn('Transação não encontrada para deletar');
+        return;
+      }
+
       await axios.delete('/api/transacoes/delete/' + id);
 
-      await refreshDados();
+      setTranscaoes((prev) => prev.filter((t) => t.id !== id));
+
+      if (transacao.tipo === 'RECEITA') {
+        setReceita((prev) => prev - parseFloat(transacao.valor));
+      } else if (transacao.tipo === 'DESPESA') {
+        setDespesa((prev) => prev - parseFloat(transacao.valor));
+      }
+
+      const [dia, mes, ano] = transacao.dataTransacao.split('/');
+      const mesIndex = parseInt(mes, 10) - 1;
+
+      setCharts((prev) => {
+        const updated = [...prev];
+        if (transacao.tipo === 'RECEITA') {
+          updated[mesIndex].receita -= parseFloat(transacao.valor);
+        } else if (transacao.tipo === 'DESPESA') {
+          updated[mesIndex].despesa -= parseFloat(transacao.valor);
+        }
+        return updated;
+      });
 
     } catch (err) {
-      console.error('Erro ao adicionar transação', err);
+      console.error('Erro ao deletar transação', err);
     }
   };
 
   return (
-    <ValuesContext.Provider value={{ novaTransacao, receita, despesa, categorias, transacoes, charts, deletarTransacao }}>
+    <ValuesContext.Provider value={{
+      novaTransacao,
+      receita,
+      despesa,
+      categorias,
+      transacoes,
+      charts,
+      deletarTransacao
+    }}>
       {children}
     </ValuesContext.Provider>
   );
