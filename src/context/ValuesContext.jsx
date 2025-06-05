@@ -105,6 +105,12 @@ export function ValuesProvider({ children }) {
     }
   };
 
+  const getNomeMes = (index) => {
+    const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    return nomes[index] || 'Indefinido';
+  };
+
+
   const deletarTransacao = async (id) => {
     try {
       const transacao = transacoes.find(t => t.id === id);
