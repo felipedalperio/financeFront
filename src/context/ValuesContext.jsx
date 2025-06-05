@@ -77,6 +77,12 @@ export function ValuesProvider({ children }) {
         setDespesa((prev) => prev + parseFloat(data.valor));
       }
 
+      const initialData = monthNames.map((name) => ({
+          name,
+          receita: 0,
+          despesa: 0,
+        }));
+
       transacoes.forEach((transacao) => {
           const [dia, mes, ano] = transacao.dataTransacao.split('/');
           const mesIndex = parseInt(mes, 10) - 1;
