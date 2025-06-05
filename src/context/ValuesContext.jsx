@@ -79,14 +79,24 @@ export function ValuesProvider({ children }) {
 
       const [dia, mes, ano] = data.dataTransacao.split('/');
       const mesIndex = parseInt(mes, 10) - 1;
-
+  
       setCharts((prev) => {
         const updated = [...prev];
+  
+        if (!updated[mesIndex]) {
+          updated[mesIndex] = {
+            name: getNomeMes(mesIndex), 
+            receita: 0,
+            despesa: 0
+          };
+        }
+  
         if (data.tipo === 'RECEITA') {
           updated[mesIndex].receita += parseFloat(data.valor);
         } else if (data.tipo === 'DESPESA') {
           updated[mesIndex].despesa += parseFloat(data.valor);
         }
+  
         return updated;
       });
 
