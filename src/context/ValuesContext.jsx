@@ -77,37 +77,22 @@ export function ValuesProvider({ children }) {
         setDespesa((prev) => prev + parseFloat(data.valor));
       }
 
-      const [dia, mes, ano] = data.dataTransacao.split('/');
-      const mesIndex = parseInt(mes, 10) - 1;
-  
-      setCharts((prev) => {
-        const updated = [...prev];
-  
-        if (!updated[mesIndex]) {
-          updated[mesIndex] = {
-            name: getNomeMes(mesIndex), 
-            receita: 0,
-            despesa: 0
-          };
-        }
-  
-        if (data.tipo === 'RECEITA') {
-          updated[mesIndex].receita += parseFloat(data.valor);
-        } else if (data.tipo === 'DESPESA') {
-          updated[mesIndex].despesa += parseFloat(data.valor);
-        }
-  
-        return updated;
-      });
+      transacoes.forEach((transacao) => {
+          const [dia, mes, ano] = transacao.dataTransacao.split('/');
+          const mesIndex = parseInt(mes, 10) - 1;
+
+          if (transacao.tipo === 'RECEITA') {
+            initialData[mesIndex].receita += transacao.valor;
+          } else if (transacao.tipo === 'DESPESA') {
+            initialData[mesIndex].despesa += transacao.valor;
+          }
+        });
+
+        setCharts(initialData);
 
     } catch (err) {
       console.error('Erro ao adicionar transação', err);
     }
-  };
-
-  const getNomeMes = (index) => {
-    const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    return nomes[index] || 'Indefinido';
   };
 
 
