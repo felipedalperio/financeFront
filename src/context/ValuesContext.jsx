@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import {formatarValorCompleto} from '../utils/Util'
 
 const ValuesContext = createContext();
 
@@ -36,6 +37,8 @@ export function ValuesProvider({ children }) {
         const tras = await axios.get('/api/transacoes/listar/false');
         setTranscaoes(tras.data);
 
+        console.log(tras.data)
+
         const initialData = monthNames.map((name) => ({
           name,
           receita: 0,
@@ -64,39 +67,52 @@ export function ValuesProvider({ children }) {
   }, []);
 
   const novaTransacao = async (data) => {
-  try {
-    await axios.post('/api/transacoes', data, {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    try {
+      const transacao = await axios.post('/api/transacoes', data, {
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-    // Adiciona id único
-    const transacaoComId = { ...data, id: Date.now() };
+    
+      // Adiciona id único
+      const transacaoComId = {
+        ...data,
+        id: transacao.data.id,
+        dataTransacao: new Date(transacao.data.dataTransacao).toLocaleDateString('pt-BR'),
+        valorFormatado: formatarValorCompleto(transacao.data.valor),
+        categoria: data.categoria ? data.categoria : 'Sem categoria',
+      };
 
-    setTranscaoes((prev) => [...prev, transacaoComId]);
+      console.log(transacaoComId);
 
-    if (data.tipo === 'RECEITA') {
-      setReceita((prev) => prev + parseFloat(data.valor));
-    } else if (data.tipo === 'DESPESA') {
-      setDespesa((prev) => prev + parseFloat(data.valor));
-    }
+      setTranscaoes((prev) => [...prev, transacaoComId]);
 
-    const [dia, mes, ano] = data.dataTransacao.split('/');
-    const mesIndex = parseInt(mes, 10) - 1;
 
-    setCharts((prev) => {
-      const updated = [...prev];
       if (data.tipo === 'RECEITA') {
-        updated[mesIndex].receita += parseFloat(data.valor);
+        setReceita((prev) => prev + parseFloat(data.valor));
       } else if (data.tipo === 'DESPESA') {
-        updated[mesIndex].despesa += parseFloat(data.valor);
+        setDespesa((prev) => prev + parseFloat(data.valor));
       }
-      return updated;
-    });
 
-  } catch (err) {
-    console.error('Erro ao adicionar transação', err);
-  }
-};
+      const [dia, mes, ano] = data.dataTransacao.split('-');
+      const mesIndex = parseInt(mes, 10) - 1;
+
+      setCharts((prev) => {
+        const updated = [...prev];
+
+        if (data.tipo === 'RECEITA') {
+          updated[mesIndex].receita += parseFloat(data.valor);
+        } else if (data.tipo === 'DESPESA') {
+          updated[mesIndex].despesa += parseFloat(data.valor);
+        }
+        return updated;
+      });
+
+    } catch (err) {
+      console.error('Erro ao adicionar transação', err);
+    }
+  };
+
+
 
   const deletarTransacao = async (id) => {
     try {

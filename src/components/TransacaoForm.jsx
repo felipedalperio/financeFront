@@ -22,9 +22,14 @@ export default function TransacaoModal({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const categoriaSelecionada = categorias.find(
+      (cat) => cat.id === form.categoriaId
+    );
+
     const dataToSend = {
       ...form,
       valor: parseFloat(form.valor),
+      categoria: categoriaSelecionada ? categoriaSelecionada.nome : null
     };
 
     await novaTransacao(dataToSend);
