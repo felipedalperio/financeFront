@@ -13,6 +13,7 @@ import { FaRegBell } from "react-icons/fa";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 import { formatarValor } from '../utils/Util';
+import { MdLogout } from "react-icons/md";
 
 const bubbles = [
     { label: 'Moradia', size: 160, color: 'bg-black', top: '35%', left: '20%' },
@@ -24,7 +25,7 @@ const bubbles = [
 
 
 export default function Dashboard() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const { despesa, receita } = useValues();
 
     return (
@@ -34,6 +35,7 @@ export default function Dashboard() {
                 <div className="hidden md:flex gap-2 lg:text-[#4e4e4e] self-end">
                     <FaRegBell size={25} />
                     <CgProfile size={25} />
+                    <MdLogout size={25} onClick={logout}/>
                 </div>
                 <div className="flex justify-between w-full gap-4 flex-col md:flex-row">
                     <div className="flex gap-2">
@@ -43,9 +45,10 @@ export default function Dashboard() {
                                 <span className="font-bold text-md md:text-xl lg:text-gray-800"> Hi, {user.nome}! </span>
                                 <span className="italic text-xs md:text-sm lg:text-gray-500"> Today is friday 25 june 2025 </span>
                             </div>
-                            <div className="flex gap-1 md:hidden self-start">
+                            <div className="flex gap-2 md:hidden self-start">
                                 <FaRegBell size={25} />
                                 <CgProfile size={25} />
+                                <MdLogout size={25} onClick={logout}/>
                             </div>
                         </div>
                     </div>
