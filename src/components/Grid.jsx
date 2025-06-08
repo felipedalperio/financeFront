@@ -13,11 +13,13 @@ export default function Grid() {
         {
             field: 'descricao',
             headerName: 'Descrição',
-            width: 150,
+            width: 180,
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {IconeTipo(params.row.tipo, 20)}
-                    {EscolherIcon(params.row.categoria, 20)}
+                    <div className='flex gap-2'>
+                        {IconeTipo(params.row.tipo, 16)}
+                        {EscolherIcon(params.row.categoria, 16)}
+                    </div>
                     <span>{params.value}</span>
                 </div>
             )
