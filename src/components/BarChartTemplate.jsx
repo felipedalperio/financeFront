@@ -132,7 +132,7 @@ export default function BarChartTemplate() {
                 </div>
 
             </div>
-            <div className='ml-[-25px] lg:ml-0'>
+            <div className='ml-[-30px] md:ml-[-25px] lg:ml-0'>
                 <ResponsiveContainer width="100%" height={290}>
                 <BarChart data={charts} barCategoryGap={0} barGap={0}>
                     <XAxis dataKey="name" />
