@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useValues } from '../context/ValuesContext'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
+import { FaChevronDown } from 'react-icons/fa'
+import { EscolherIcon, formatarValorCompleto } from '../utils/Util';
+import { Fragment } from 'react'
+import TipoListbox from './TipoListBox';
 
 
 export default function TransacaoModal({ onClose }) {
@@ -28,9 +33,10 @@ export default function TransacaoModal({ onClose }) {
 
     const dataToSend = {
       ...form,
-      valor: parseFloat(form.valor),
-      categoria: categoriaSelecionada ? categoriaSelecionada.nome : null
+      categoria: categoriaSelecionada ? categoriaSelecionada.nome : null,
+      valor: parseFloat(form.valor.replace(/\D/g, '')) / 100
     };
+
 
     await novaTransacao(dataToSend);
 
@@ -45,41 +51,84 @@ export default function TransacaoModal({ onClose }) {
     onClose();
   };
 
+
+  function handleValorChange(e) {
+    const raw = e.target.value;
+
+    // Remove tudo que não for número
+    const somenteNumeros = raw.replace(/\D/g, '');
+
+    // Converte para número com duas casas decimais
+    const valorFloat = parseFloat(somenteNumeros) / 100;
+
+    // Formata para exibição
+    const valorFormatado = isNaN(valorFloat) ? '' : formatarValorCompleto(valorFloat);
+
+    setForm({
+      ...form,
+      valor: valorFormatado,
+    });
+  }
+
   return (
     <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50 text-gray-700">
       <div className="absolute bg-white p-8 rounded-lg shadow-lg w-full max-w-md space-y-4">
         <h2 className="text-xl font-semibold">Nova Transação</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block ">Tipo</label>
-            <select
-              name="tipo"
-              value={form.tipo}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
-            >
-              <option value="RECEITA">Receita</option>
-              <option value="DESPESA">Despesa</option>
-            </select>
-          </div>
+          <TipoListbox
+            value={form.tipo}
+            onChange={(novoTipo) => setForm({ ...form, tipo: novoTipo })}
+          />
 
-          {form.tipo == "DESPESA" && (
+
+          {form.tipo === 'DESPESA' && (
             <div>
-              <label className="block ">Categoria</label>
-              <select
-                name="categoriaId"
-                value={form.categoriaId}
-                onChange={handleChange}
-                className="w-full mt-1 p-2 border rounded"
+              <label className="block">Categoria</label>
+              <Listbox
+                value={categorias.find((cat) => cat.id === form.categoriaId) || null}
+                onChange={(selectedCat) => setForm({ ...form, categoriaId: selectedCat.id })}
               >
-                <option value="">Selecione</option>
-                {categorias.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.nome}
-                  </option>
-                ))}
-              </select>
+                {({ open }) => (
+                  <div className="relative mt-1">
+                    <ListboxButton className="w-full p-2 border rounded flex justify-between items-center bg-white">
+                      <span className="flex items-center gap-2">
+                        {EscolherIcon(
+                          categorias.find((cat) => cat.id === form.categoriaId)?.nome || '',
+                          20
+                        )}
+                        {
+                          categorias.find((cat) => cat.id === form.categoriaId)?.nome ||
+                          'Selecione'
+                        }
+                      </span>
+                      <FaChevronDown className="text-gray-400" />
+                    </ListboxButton>
+
+                    {open && (
+                      <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white shadow border border-gray-300">
+                        {categorias.map((cat) => (
+                          <ListboxOption
+                            key={cat.id}
+                            value={cat}
+                            as={Fragment}
+                          >
+                            {({ active, selected }) => (
+                              <li
+                                className={`cursor-pointer select-none p-2 flex items-center gap-2 ${active ? 'bg-blue-100' : ''
+                                  } ${selected ? 'font-medium' : ''}`}
+                              >
+                                {EscolherIcon(cat.nome, 18)}
+                                {cat.nome}
+                              </li>
+                            )}
+                          </ListboxOption>
+                        ))}
+                      </ListboxOptions>
+                    )}
+                  </div>
+                )}
+              </Listbox>
             </div>
           )}
 
@@ -99,14 +148,14 @@ export default function TransacaoModal({ onClose }) {
           <div>
             <label className="block ">Valor</label>
             <input
-              type="number"
-              step="0.01"
+              type="text"
               name="valor"
               value={form.valor}
-              onChange={handleChange}
+              onChange={handleValorChange}
               className="w-full mt-1 p-2 border rounded"
               required
             />
+
           </div>
 
           <div>

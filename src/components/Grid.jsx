@@ -2,9 +2,8 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
 import { useValues } from '../context/ValuesContext';
-import { BsGlobe } from "react-icons/bs";
-import { FaHome, FaShoppingBasket } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
+import { EscolherIcon, IconeTipo } from '../utils/Util';
 
 export default function Grid() {
     const { transacoes, deletarTransacao } = useValues();
@@ -17,7 +16,8 @@ export default function Grid() {
             width: 150,
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {EscolherIcon(params.row.categoria)}
+                    {IconeTipo(params.row.tipo, 20)}
+                    {EscolherIcon(params.row.categoria, 20)}
                     <span>{params.value}</span>
                 </div>
             )
@@ -52,21 +52,6 @@ export default function Grid() {
         }
     ];
 
-    function EscolherIcon(name) {
-        try {
-            switch (name) {
-                case 'Moradia':
-                    return <FaHome size={20} />
-                case 'Mercado':
-                    return <FaShoppingBasket size={20} />
-                default:
-                    return <BsGlobe size={20} />
-
-            }
-        } catch (err) {
-            return <BsGlobe size={20} />
-        }
-    }
 
     return (
         <Box className="h-full">

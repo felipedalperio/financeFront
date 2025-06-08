@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import {formatarValorCompleto} from '../utils/Util'
+import { formatarValorCompleto } from '../utils/Util'
 
 const ValuesContext = createContext();
 
@@ -72,7 +72,7 @@ export function ValuesProvider({ children }) {
         headers: { 'Content-Type': 'application/json' }
       });
 
-    
+
       // Adiciona id único
       const transacaoComId = {
         ...data,
@@ -81,8 +81,6 @@ export function ValuesProvider({ children }) {
         valorFormatado: formatarValorCompleto(transacao.data.valor),
         categoria: data.categoria ? data.categoria : 'Sem categoria',
       };
-
-      console.log(transacaoComId);
 
       setTranscaoes((prev) => [...prev, transacaoComId]);
 
@@ -97,13 +95,21 @@ export function ValuesProvider({ children }) {
       const mesIndex = parseInt(mes, 10) - 1;
 
       setCharts((prev) => {
+        // Copia o array do estado atual
         const updated = [...prev];
 
+        // Cria uma cópia do objeto do mês que será alterado para evitar mutação direta
+        const mesAtualizado = { ...updated[mesIndex] };
+
         if (data.tipo === 'RECEITA') {
-          updated[mesIndex].receita += parseFloat(data.valor);
+          mesAtualizado.receita += parseFloat(data.valor);
         } else if (data.tipo === 'DESPESA') {
-          updated[mesIndex].despesa += parseFloat(data.valor);
+          mesAtualizado.despesa += parseFloat(data.valor);
         }
+
+        // Substitui o objeto no índice com a cópia atualizada
+        updated[mesIndex] = mesAtualizado;
+
         return updated;
       });
 
@@ -137,11 +143,18 @@ export function ValuesProvider({ children }) {
 
       setCharts((prev) => {
         const updated = [...prev];
+
+        // Cria cópia do objeto do mês para evitar mutação direta
+        const mesAtualizado = { ...updated[mesIndex] };
+
         if (transacao.tipo === 'RECEITA') {
-          updated[mesIndex].receita -= parseFloat(transacao.valor);
+          mesAtualizado.receita -= parseFloat(transacao.valor);
         } else if (transacao.tipo === 'DESPESA') {
-          updated[mesIndex].despesa -= parseFloat(transacao.valor);
+          mesAtualizado.despesa -= parseFloat(transacao.valor);
         }
+
+        updated[mesIndex] = mesAtualizado;
+
         return updated;
       });
 
@@ -149,6 +162,7 @@ export function ValuesProvider({ children }) {
       console.error('Erro ao deletar transação', err);
     }
   };
+
 
   return (
     <ValuesContext.Provider value={{

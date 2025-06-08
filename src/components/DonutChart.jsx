@@ -62,7 +62,7 @@ export default function DonutChart({ despesa, receita }) {
 
                     {/* Texto centralizado no donut */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[16px] font-bold text-gray-800">
-                        {percentageDespesa}%
+                        {(percentageDespesa != 'NaN' && percentageDespesa != "Infinity") ? percentageDespesa : 0}%
                     </div>
                 </div>
             </div>
