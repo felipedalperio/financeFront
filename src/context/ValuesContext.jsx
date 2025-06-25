@@ -11,7 +11,9 @@ export function ValuesProvider({ children }) {
   const [categorias, setCategorias] = useState([]);
   const [filtroData, setFiltroData] = useState();
   const [transacoes, setTranscaoes] = useState([]);
+  const [buddle, setBuddle] = useState([]);
   const [charts, setCharts] = useState([]);
+  const usedColors = new Set();
 
   const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
@@ -36,8 +38,6 @@ export function ValuesProvider({ children }) {
 
         const tras = await axios.get('/api/transacoes/listar/false');
         setTranscaoes(tras.data);
-
-        console.log(tras.data)
 
         const initialData = monthNames.map((name) => ({
           name,
@@ -65,6 +65,134 @@ export function ValuesProvider({ children }) {
     fetchCategorias();
     fetchDados();
   }, []);
+
+  useEffect(() => {
+    const buddleLoad = () => {
+      try {
+        const somaPorCategoria = {};
+
+        transacoes.forEach(element => {
+          if (element.tipo == "DESPESA") {
+            const valor = parseFloat(element.valor); // ou element.valorTotal, dependendo do seu modelo
+            if (somaPorCategoria[element.categoriaId]) {
+              somaPorCategoria[element.categoriaId] += valor;
+            } else {
+              somaPorCategoria[element.categoriaId] = valor;
+            }
+          }
+        });
+
+
+        const totalGeral = Object.values(somaPorCategoria).reduce((acc, val) => acc + val, 0);
+
+
+        let bubbles = Object.entries(somaPorCategoria).map(([categoriaId, valorTotal]) => {
+          const categoria = categorias.find(c => c.id == categoriaId);
+          const porcentagem = (valorTotal / totalGeral) * 100;
+          let sizep = 70 + porcentagem * 2;
+          return {
+            label: categoria?.nome || 'outros',
+            size: sizep >= 150 ? 150 : sizep,
+            color: getRandomColor(),
+            valorTotal: valorTotal.toFixed(2),
+            porcentagem: Math.round(porcentagem) <= 0 ? 1 : Math.round(porcentagem),
+          };
+        });
+
+
+        // 1. Ordenar do maior para o menor
+        bubbles.sort((a, b) => b.valorTotal - a.valorTotal);
+
+        // 2. Posicionar: maior no centro, menores ao redor
+        const centerX = 35;
+        let centerY = 35;
+        const radius = 25;
+
+        bubbles = bubbles.slice(0, 5).map((bubble, index) => {
+
+          if (index === 0) {
+            // Maior bolha no centro
+            return {
+              ...bubble,
+              top: `${centerY}%`,
+              left: `${centerX}%`,
+            };
+          } else {
+            // As outras vão ao redor em um círculo
+            let numb = index * 3;
+            let centerY = 35;
+
+            if (index === 1) {
+              numb = index * 1;
+            }
+
+            if (index === 3) {
+              numb = index * 1;
+            }
+
+            if (index === 1) {
+              centerY = 40
+            }
+
+            if (index === 2) {
+              numb = index * 2;
+            }
+
+
+            const angle = (2 * Math.PI * (numb)) / (bubbles.length - 1);
+            const top = centerY + radius * Math.sin(numb);
+            const left = centerX + radius * Math.cos(numb);
+
+            return {
+              ...bubble,
+              top: `${top}%`,
+              left: `${left}%`,
+            };
+          }
+        });
+
+        setBuddle(bubbles);
+      } catch (err) {
+        console.error('Erro ao carregar buddle:', err);
+      }
+    };
+
+    buddleLoad();
+  }, [transacoes, categorias]);
+
+
+  const getRandomColor = () => {
+    const colors = [
+      'bg-red-500',
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-yellow-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-orange-500',
+      'bg-gray-500',
+    ];
+
+    // Filtra as cores ainda não usadas
+    const availableColors = colors.filter(color => !usedColors.has(color));
+
+    // Se todas as cores já foram usadas, reinicia
+    if (availableColors.length === 0) {
+      usedColors.clear();
+      availableColors.push(...colors);
+    }
+
+    // Escolhe uma cor aleatória das disponíveis
+    const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+
+    // Marca como usada
+    usedColors.add(randomColor);
+
+    return randomColor;
+  };
+
+
+
 
   const novaTransacao = async (data) => {
     try {
@@ -172,7 +300,8 @@ export function ValuesProvider({ children }) {
       categorias,
       transacoes,
       charts,
-      deletarTransacao
+      deletarTransacao,
+      buddle
     }}>
       {children}
     </ValuesContext.Provider>

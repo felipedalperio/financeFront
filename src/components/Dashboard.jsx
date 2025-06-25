@@ -26,7 +26,7 @@ const bubbles = [
 
 export default function Dashboard() {
     const { user, logout } = useAuth();
-    const { despesa, receita } = useValues();
+    const { despesa, receita, buddle } = useValues();
 
     return (
         <div className="lg:px-5 lg:bg-[#efefef] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
@@ -35,7 +35,7 @@ export default function Dashboard() {
                 <div className="hidden md:flex gap-2 lg:text-[#4e4e4e] self-end">
                     <FaRegBell size={25} />
                     <CgProfile size={25} />
-                    <MdLogout size={25} onClick={logout}/>
+                    <MdLogout size={25} onClick={logout} />
                 </div>
                 <div className="flex justify-between w-full gap-4 flex-col md:flex-row">
                     <div className="flex gap-2">
@@ -48,7 +48,7 @@ export default function Dashboard() {
                             <div className="flex gap-2 md:hidden self-start">
                                 <FaRegBell size={25} />
                                 <CgProfile size={25} />
-                                <MdLogout size={25} onClick={logout}/>
+                                <MdLogout size={25} onClick={logout} />
                             </div>
                         </div>
                     </div>
@@ -115,26 +115,29 @@ export default function Dashboard() {
                         <BarChartTemplate />
                     </div>
                     <div className="row-start-2 lg:row-start-1 col-span-6  lg:col-span-2 flex flex-col gap-4">
-                        <div className="bg-white rounded-lg py-4 relative w-full h-[400px] flex items-center flex-col">
+                        <div className="bg-white rounded-lg py-4 relative w-full h-[400px] flex items-center justify-center flex-col">
                             <h3 className="mb-1 px-3 text-xl font-bold text-gray-600">Proporção de Despesas</h3>
-                            {bubbles.map((b, i) => (
-                                <motion.div
-                                    key={i}
-                                    className={`absolute ${b.color}  opacity-75 text-white text-center rounded-full flex justify-center items-center`}
-                                    style={{
-                                        width: b.size,
-                                        height: b.size,
-                                        top: b.top,
-                                        left: b.left,
-                                        right: b.right,
-                                        bottom: b.bottom,
-                                    }}
-                                    animate={{ y: [0, -15, 0] }}
-                                    transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
-                                >
-                                    <span className="text-sm px-1">{b.label}</span>
-                                </motion.div>
-                            ))}
+                            <div className="w-full max-w-70 relative h-screen">
+                                {buddle.map((b, i) => (
+                                    <motion.div
+                                        key={i}
+                                        className={`absolute ${b.color} flex-col opacity-75 text-white text-center rounded-full flex justify-center items-center`}
+                                        style={{
+                                            width: b.size,
+                                            height: b.size,
+                                            top: b.top,
+                                            left: b.left,
+                                            right: b.right,
+                                            bottom: b.bottom,
+                                        }}
+                                        animate={{ y: [0, -15, 0] }}
+                                        transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
+                                    >
+                                        <span className="text-sm px-1 ">{b.label}</span>
+                                        <span className="text-xs px-1 font-bold">{b.porcentagem}%</span>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className="col-span-6 row-start-4  lg:row-start-2 bg-white text-white p-4 rounded-lg lg:col-span-4">
@@ -142,7 +145,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex-col md:flex-row lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
-                        <DonutChart despesa={despesa} receita={receita}/>
+                        <DonutChart despesa={despesa} receita={receita} />
                         <ScoreGauge />
                     </div>
                 </div>
