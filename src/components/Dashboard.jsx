@@ -14,19 +14,13 @@ import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 import { formatarValor } from '../utils/Util';
 import { MdLogout } from "react-icons/md";
-
-const bubbles = [
-    { label: 'Moradia', size: 160, color: 'bg-black', top: '35%', left: '20%' },
-    { label: 'Lazer', size: 90, color: 'bg-green-500', top: '46%', left: '60%' },
-    { label: 'Saúde', size: 100, color: 'bg-red-500', top: '20%', right: '50%' },
-    { label: 'Transporte', size: 70, color: 'bg-orange-500', top: '60%', right: '70%' },
-    { label: 'Outros', size: 45, color: 'bg-gray-500', top: '75%', right: '30%' },
-];
+import FiltroData from "./FiltroData";
 
 
 export default function Dashboard() {
     const { user, logout } = useAuth();
-    const { despesa, receita, buddle } = useValues();
+    const { despesa, receita, buddle, aplicarFiltroData } = useValues();
+
 
     return (
         <div className="lg:px-5 lg:bg-[#efefef] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
@@ -53,11 +47,12 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className=" flex flex-col gap-3 items-end">
-                        <div className="flex gap-3 p-2 bg-[#ffffff] rounded-2xl items-center text-[#525252]">
-                            <CiCalendar size={20} />
-                            <span className="text-gray-500 text-xs md:text-sm">Jan 2024 - Dec 2024 </span>
-                            <IoIosArrowDown size={20} />
-                        </div>
+                        <FiltroData
+                            onFiltrar={(opcao) => {
+                                aplicarFiltroData(opcao);
+                            }}
+                        />
+
                     </div>
 
                 </div>
@@ -116,27 +111,31 @@ export default function Dashboard() {
                     </div>
                     <div className="row-start-2 lg:row-start-1 col-span-6  lg:col-span-2 flex flex-col gap-4">
                         <div className="bg-white rounded-lg py-4 relative w-full h-[400px] flex items-center justify-center flex-col">
-                            <h3 className="mb-1 px-3 text-xl font-bold text-gray-600">Proporção de Despesas</h3>
+                            <h3 className="mb-1 px-3 text-xl font-bold text-gray-600">Top 5 maiores Despesas</h3>
                             <div className="w-full max-w-70 relative h-screen">
-                                {buddle.map((b, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className={`absolute ${b.color} flex-col opacity-75 text-white text-center rounded-full flex justify-center items-center`}
-                                        style={{
-                                            width: b.size,
-                                            height: b.size,
-                                            top: b.top,
-                                            left: b.left,
-                                            right: b.right,
-                                            bottom: b.bottom,
-                                        }}
-                                        animate={{ y: [0, -15, 0] }}
-                                        transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
-                                    >
-                                        <span className="text-sm px-1 ">{b.label}</span>
-                                        <span className="text-xs px-1 font-bold">{b.porcentagem}%</span>
-                                    </motion.div>
-                                ))}
+                                {buddle.length > 0 ? (
+                                    buddle.map((b, i) => (
+                                        <motion.div
+                                            key={i}
+                                            className={`absolute ${b.color} flex-col opacity-75 text-white text-center rounded-full flex justify-center items-center`}
+                                            style={{
+                                                width: b.size,
+                                                height: b.size,
+                                                top: b.top,
+                                                left: b.left,
+                                                right: b.right,
+                                                bottom: b.bottom,
+                                            }}
+                                            animate={{ y: [0, -15, 0] }}
+                                            transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
+                                        >
+                                            <span className="text-sm px-1">{b.label}</span>
+                                            <span className="text-xs px-1 font-bold">{b.porcentagem}%</span>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-sm text-gray-500">Sem registro</div>
+                                )}
                             </div>
                         </div>
                     </div>

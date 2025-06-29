@@ -1,24 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useValues } from '../context/ValuesContext'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
-import { FaChevronDown } from 'react-icons/fa'
+import { FaChevronDown, FaLeaf } from 'react-icons/fa'
 import { EscolherIcon, formatarValorCompleto } from '../utils/Util';
 import { Fragment } from 'react'
 import TipoListbox from './TipoListBox';
 
 
-export default function TransacaoModal({ onClose }) {
+export default function TransacaoModal({ onClose, update }) {
 
-  const { novaTransacao, categorias } = useValues();
+  const { novaTransacao,updateTransacao, categorias } = useValues();
 
 
-  const [form, setForm] = useState({
-    categoriaId: '',
-    tipo: 'RECEITA',
-    descricao: '',
-    valor: '',
-    dataTransacao: new Date().toISOString().split('T')[0]
-  });
+  const initialValue = update
+    ? {
+      ...update,
+      dataTransacao: update.dataTransacao.includes('/')
+        ? (() => {
+          const [dia, mes, ano] = update.dataTransacao.split('/');
+          return `${ano}-${mes}-${dia}`;
+        })()
+        : update.dataTransacao,
+        valor: formatarValorCompleto(update.valor)
+
+    }
+    : {
+      categoriaId: '',
+      tipo: 'RECEITA',
+      descricao: '',
+      valor: '',
+      dataTransacao: new Date().toISOString().split('T')[0],
+    };
+
+  const [form, setForm] = useState(initialValue);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,7 +52,11 @@ export default function TransacaoModal({ onClose }) {
     };
 
 
-    await novaTransacao(dataToSend);
+    if (update) {
+      await updateTransacao(dataToSend);
+    }else{
+      await novaTransacao(dataToSend);
+    }
 
     setForm({
       categoriaId: '',
@@ -55,13 +73,10 @@ export default function TransacaoModal({ onClose }) {
   function handleValorChange(e) {
     const raw = e.target.value;
 
-    // Remove tudo que não for número
     const somenteNumeros = raw.replace(/\D/g, '');
 
-    // Converte para número com duas casas decimais
     const valorFloat = parseFloat(somenteNumeros) / 100;
 
-    // Formata para exibição
     const valorFormatado = isNaN(valorFloat) ? '' : formatarValorCompleto(valorFloat);
 
     setForm({
@@ -131,7 +146,6 @@ export default function TransacaoModal({ onClose }) {
               </Listbox>
             </div>
           )}
-
 
           <div>
             <label className="block ">Descrição</label>

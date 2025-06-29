@@ -3,11 +3,24 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
 import { useValues } from '../context/ValuesContext';
 import { MdOutlineDelete } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
 import { EscolherIcon, IconeTipo } from '../utils/Util';
+import TransacaoModal from './TransacaoForm';
+import { useEffect, useState } from 'react';
 
 export default function Grid() {
     const { transacoes, deletarTransacao } = useValues();
+    const [showTransiction, setShowTransiction] = useState(false)
+    const [update, setUpdate] = useState(null)
 
+    useEffect(() => {
+        setShowTransiction(update != null)
+    },[update])
+
+    const close = () => {
+      setShowTransiction(false)
+      setUpdate(null)
+    }
 
     const columns = [
         {
@@ -45,8 +58,11 @@ export default function Grid() {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <div className="flex items-center justify-center mt-3" onClick={() => deletarTransacao(params.row.id)}>
-                    <div className="text-red-400 rounded-lg w-full flex items-center justify-center h-6">
+                <div className="flex items-center justify-center mt-3 gap-2">
+                    <div className="text-gray-700 rounded-lg w-full flex items-center justify-center h-6" onClick={() => setUpdate(params.row)}>
+                        <FaRegEdit size={18} />
+                    </div>
+                    <div className="text-red-400 rounded-lg w-full flex items-center justify-center h-6" onClick={() => deletarTransacao(params.row.id)}>
                         <MdOutlineDelete size={20} />
                     </div>
                 </div>
@@ -87,6 +103,13 @@ export default function Grid() {
                     border: 'none',
                 }}
             />
+
+            {showTransiction && (
+                <TransacaoModal
+                    onClose={close}
+                    update={update}
+                />
+            )}
         </Box>
     )
 }
