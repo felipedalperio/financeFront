@@ -24,7 +24,7 @@ export default function Menu() {
       </div>
 
       <ul className="flex flex-col mt-16 gap-6 text-[14px] pl-6 w-full">
-        <li className="flex gap-2 bg-[#efefef] text-[#1f273b] rounded-l-2xl p-2 font-semibold"><AiOutlineHome size={20} /> Dashboard</li>
+        <li className="flex gap-2 bg-[#ececec] text-[#1f273b] rounded-l-2xl p-2 font-semibold"><AiOutlineHome size={20} /> Dashboard</li>
         <li onClick={() => setShowTransiction(true)} className="flex gap-2"><GrTransaction size={18} />Registrar Transferencia</li>
         <li className="flex gap-2 font-semibold"><GrMoney size={18}/> Hístorico</li>
         <li className="flex gap-2 font-semibold"><PiTargetBold size ={18} /> Metas</li>

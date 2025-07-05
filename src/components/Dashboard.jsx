@@ -23,7 +23,7 @@ export default function Dashboard() {
 
 
     return (
-        <div className="lg:px-5 lg:bg-[#efefef] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
+        <div className="lg:px-5 lg:bg-[#ececec] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
 
             <div className=" px-2 mb-5 flex gap-3 items-center text-white flex-col">
                 <div className="hidden md:flex gap-2 lg:text-[#4e4e4e] self-end">
@@ -72,24 +72,24 @@ export default function Dashboard() {
                             <span className="text-3xl lg:text-gray-800"> {formatarValor(receita - despesa)} </span>
                         </div>
                     </div>
-                    <div className="flex gap-2 lg:flex-col bg-white  lg:gap-6 rounded-t-2xl p-3 pt-6 lg:rounded-none lg:p-0 lg:bg-[#ededed]">
+                    <div className="flex gap-2 lg:flex-col lg:gap-6 rounded-t-2xl p-3 pt-6 lg:rounded-none lg:p-0 lg:bg-[#ececec]">
                         <div className="w-full max-w-55  px-2 md:px-3 pb-2 py-1 bg-[#75bf64] text-gray-100 rounded-lg ">
                             <div className="flex justify-between italic items-center text-gray-200 pr-3">
                                 <span>Entrada</span>
                                 <BsCashCoin className="relative top-1 text-xl md:text-2xl" />
                             </div>
-                            <div className="font-semibold flex gap-2 md:gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ededed] ">
+                            <div className="font-semibold flex gap-2 md:gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ececec] ">
                                 <span className="text-md">R$</span>
                                 <span className="text-xl md:text-3xl">{formatarValor(receita)}</span>
                             </div>
 
                         </div>
-                        <div className="w-full max-w-55 px-2 md:px-3 pb-2 py-1 bg-gray-800 text-gray-100 rounded-lg ">
-                            <div className="flex italic justify-between items-center text-gray-200 pr-3">
+                        <div className="bg-[#ececec] text-gray-800 w-full max-w-55 px-2 md:px-3 pb-2 py-1 lg:bg-gray-800 lg:text-gray-100 rounded-lg ">
+                            <div className="flex italic justify-between items-center  text-gray-800 lg:text-gray-200 pr-3">
                                 <span>Saídas</span>
                                 <FaMoneyBillTransfer className="text-xl md:text-2xl" />
                             </div>
-                            <div className="font-semibold flex gap-2 md:gap-5 items-end pb-2  border-1 border-gray-800 border-b-[#898989] ">
+                            <div className="font-semibold flex gap-2 md:gap-5 items-end pb-2 border-1 border-[#ececec] border-b-gray-800  lg:border-1 lg:border-gray-800 lg:border-b-[#898989] ">
                                 <span className="text-xl">R$</span>
                                 <span className="text-xl md:text-3xl">{formatarValor(despesa)}</span>
                             </div>
@@ -97,15 +97,12 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="flex hidden lg:flex bg-white rounded-lg py-4 flex-col overflow-hidden">
-                        <h3 className="text-gray-700 font-semibold mb-1 px-3">Orçamentos</h3>
-                        <div className="relative w-full min-h-[200px] flex justify-center items-center">
-                            <Orcamento />
-
+                        <div className="relative w-full min-h-[200px] flex jutify-center items-center">
+                            <DonutChart despesa={despesa} receita={receita} />
                         </div>
                     </div>
-
                 </div>
-                <div className="pb-20 lg:pb-0 bg-white lg:bg-transparent grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 lg:gap-4 w-full">
+                <div className="bg-[#ececec] mt-2 gap-2 pb-20 lg:pb-0 lg:bg-transparent grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 lg:gap-4 w-full">
                     <div className="row-start-1 col-span-6 lg:col-span-4 xl:col-span-4 bg-white rounded-lg py-4">
                         <BarChartTemplate />
                     </div>
@@ -139,13 +136,8 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
-                    <div className="col-span-6 row-start-4  lg:row-start-2 bg-white text-white p-4 rounded-lg lg:col-span-4">
+                    <div className="col-span-6 row-start-4 lg:row-start-2 bg-white text-white p-4 rounded-lg lg:col-span-6">
                         <Grid />
-                    </div>
-
-                    <div className="flex-col md:flex-row lg:row-start-2 lg:col-span-2 lg:flex-col col-span-6 flex gap-3">
-                        <DonutChart despesa={despesa} receita={receita} />
-                        <ScoreGauge />
                     </div>
                 </div>
             </div>

@@ -26,9 +26,10 @@ export default function Grid() {
         {
             field: 'descricao',
             headerName: 'Descrição',
-            width: 180,
+            flex: 2,
+            minWidth: 200,
             renderCell: (params) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px'}}>
                     <div className='flex gap-2'>
                         {IconeTipo(params.row.tipo, 16)}
                         {EscolherIcon(params.row.categoria, 16)}
@@ -37,11 +38,12 @@ export default function Grid() {
                 </div>
             )
         },
-        { field: 'dataTransacao', headerName: 'Data', width: 140 },
+        { field: 'dataTransacao', headerName: 'Data', flex: 1, minWidth: 100 },
         {
             field: 'categoria',
             headerName: 'Categoria',
-            width: 150,
+            flex:1,
+            minWidth: 160,
             renderCell: (params) => (
                 <div className="flex items-center justify-center mt-3">
                     <div className="bg-[#1f273b] text-white rounded-lg w-full flex items-center justify-center h-6">
