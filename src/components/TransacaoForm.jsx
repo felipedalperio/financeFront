@@ -9,7 +9,7 @@ import TipoListbox from './TipoListBox';
 
 export default function TransacaoModal({ onClose, update }) {
 
-  const { novaTransacao,updateTransacao, categorias } = useValues();
+  const { novaTransacao, updateTransacao, categorias } = useValues();
 
 
   const initialValue = update
@@ -21,8 +21,9 @@ export default function TransacaoModal({ onClose, update }) {
           return `${ano}-${mes}-${dia}`;
         })()
         : update.dataTransacao,
-        valor: formatarValorCompleto(update.valor)
-
+      valor: formatarValorCompleto(update.valor),
+      formaPagamento: update.formaPagamento || 'DÉBITO',
+      parcelas: update.parcelas || 0
     }
     : {
       categoriaId: '',
@@ -30,13 +31,18 @@ export default function TransacaoModal({ onClose, update }) {
       descricao: '',
       valor: '',
       dataTransacao: new Date().toISOString().split('T')[0],
+      formaPagamento: 'DÉBITO',
+      parcelas: 0
     };
+
 
   const [form, setForm] = useState(initialValue);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: name === 'parcelas' ? Number(value) : value });
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,13 +54,13 @@ export default function TransacaoModal({ onClose, update }) {
     const dataToSend = {
       ...form,
       categoria: categoriaSelecionada ? categoriaSelecionada.nome : null,
-      valor: parseFloat(form.valor.replace(/\D/g, '')) / 100
+      valor: parseFloat(form.valor.replace(/\D/g, '')) / 100,
+      parcelas: form.formaPagamento === 'CRÉDITO' ? form.parcelas : 0,
     };
-
 
     if (update) {
       await updateTransacao(dataToSend);
-    }else{
+    } else {
       await novaTransacao(dataToSend);
     }
 
@@ -63,8 +69,11 @@ export default function TransacaoModal({ onClose, update }) {
       tipo: 'RECEITA',
       descricao: '',
       valor: '',
-      dataTransacao: new Date().toISOString().split('T')[0]
+      dataTransacao: new Date().toISOString().split('T')[0],
+      formaPagamento: 'DÉBITO',
+      parcelas: 1,
     });
+
 
     onClose();
   };
@@ -98,52 +107,84 @@ export default function TransacaoModal({ onClose, update }) {
 
 
           {form.tipo === 'DESPESA' && (
-            <div>
-              <label className="block">Categoria</label>
-              <Listbox
-                value={categorias.find((cat) => cat.id === form.categoriaId) || null}
-                onChange={(selectedCat) => setForm({ ...form, categoriaId: selectedCat.id })}
-              >
-                {({ open }) => (
-                  <div className="relative mt-1">
-                    <ListboxButton className="w-full p-2 border rounded flex justify-between items-center bg-white">
-                      <span className="flex items-center gap-2">
-                        {EscolherIcon(
-                          categorias.find((cat) => cat.id === form.categoriaId)?.nome || '',
-                          20
-                        )}
-                        {
-                          categorias.find((cat) => cat.id === form.categoriaId)?.nome ||
-                          'Selecione'
-                        }
-                      </span>
-                      <FaChevronDown className="text-gray-400" />
-                    </ListboxButton>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block">Categoria</label>
+                <Listbox
+                  value={categorias.find((cat) => cat.id === form.categoriaId) || null}
+                  onChange={(selectedCat) => setForm({ ...form, categoriaId: selectedCat.id })}
+                >
+                  {({ open }) => (
+                    <div className="relative mt-1">
+                      <ListboxButton className="w-full p-2 border rounded flex justify-between items-center bg-white">
+                        <span className="flex items-center gap-2">
+                          {EscolherIcon(
+                            categorias.find((cat) => cat.id === form.categoriaId)?.nome || '',
+                            20
+                          )}
+                          {
+                            categorias.find((cat) => cat.id === form.categoriaId)?.nome ||
+                            'Selecione'
+                          }
+                        </span>
+                        <FaChevronDown className="text-gray-400" />
+                      </ListboxButton>
 
-                    {open && (
-                      <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white shadow border border-gray-300">
-                        {categorias.map((cat) => (
-                          <ListboxOption
-                            key={cat.id}
-                            value={cat}
-                            as={Fragment}
-                          >
-                            {({ active, selected }) => (
-                              <li
-                                className={`cursor-pointer select-none p-2 flex items-center gap-2 ${active ? 'bg-blue-100' : ''
-                                  } ${selected ? 'font-medium' : ''}`}
-                              >
-                                {EscolherIcon(cat.nome, 18)}
-                                {cat.nome}
-                              </li>
-                            )}
-                          </ListboxOption>
-                        ))}
-                      </ListboxOptions>
-                    )}
-                  </div>
-                )}
-              </Listbox>
+                      {open && (
+                        <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white shadow border border-gray-300">
+                          {categorias.map((cat) => (
+                            <ListboxOption
+                              key={cat.id}
+                              value={cat}
+                              as={Fragment}
+                            >
+                              {({ active, selected }) => (
+                                <li
+                                  className={`cursor-pointer select-none p-2 flex items-center gap-2 ${active ? 'bg-blue-100' : ''
+                                    } ${selected ? 'font-medium' : ''}`}
+                                >
+                                  {EscolherIcon(cat.nome, 18)}
+                                  {cat.nome}
+                                </li>
+                              )}
+                            </ListboxOption>
+                          ))}
+                        </ListboxOptions>
+                      )}
+                    </div>
+                  )}
+                </Listbox>
+              </div>
+              <div>
+                <label className="block">Forma de Pagamento</label>
+                <select
+                  name="formaPagamento"
+                  value={form.formaPagamento}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-2 border rounded"
+                >
+                  <option value="CRÉDITO">Crédito</option>
+                  <option value="DÉBITO">Débito</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {form.formaPagamento === 'CRÉDITO' && (
+            <div>
+              <label className="block">Parcelas</label>
+              <select
+                name="parcelas"
+                value={form.parcelas}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border rounded"
+              >
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}x
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 

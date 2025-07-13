@@ -47,25 +47,44 @@ export function ValuesProvider({ children }) {
 
       setTranscaoes(resTransacoes.data);
 
-      // Gráficos
-      const initialData = monthNames.map((name) => ({
+      // 1. cria a série Jan‑Dez do ano atual COM chave
+      const anoAtual = new Date().getFullYear();
+      const initialData = monthNames.map((name, i) => ({
         name,
+        key: `${anoAtual}-${String(i + 1).padStart(2, '0')}`, // ex.: 2025-01
         receita: 0,
         despesa: 0,
       }));
 
+      // 2. percorre as transações
       resTransacoes.data.forEach((transacao) => {
         const [dia, mes, ano] = transacao.dataTransacao.split('/');
-        const mesIndex = parseInt(mes, 10) - 1;
+        const dataBase = new Date(`${ano}-${mes}-${dia}`);
 
+        // RECEITA ───────────────────────────────
         if (transacao.tipo === 'RECEITA') {
-          initialData[mesIndex].receita += transacao.valor;
-        } else if (transacao.tipo === 'DESPESA') {
-          initialData[mesIndex].despesa += transacao.valor;
+          const key = `${dataBase.getFullYear()}-${String(dataBase.getMonth() + 1).padStart(2, '0')}`;
+          const item = initialData.find(m => m.key === key);
+          if (item) item.receita += transacao.valor;
+          return; // receita não tem parcelas
+        }
+
+        // DESPESA ───────────────────────────────
+        const parcelas = +transacao.parcelas || 1;
+        const valorParcela = transacao.valor / parcelas;
+
+        for (let i = 0; i < parcelas; i++) {
+          const dataParcela = new Date(dataBase);
+          dataParcela.setMonth(dataParcela.getMonth() + i);
+
+          const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+          const item = initialData.find(m => m.key === key);
+          if (item) item.despesa += valorParcela;   // só soma se o mês for do ano atual
         }
       });
 
       setCharts(initialData);
+
     } catch (err) {
       console.error('Erro ao atualizar dados', err);
     }
@@ -89,37 +108,43 @@ export function ValuesProvider({ children }) {
 
       const gerarUltimos12Meses = () => {
         const meses = [];
-
-        for (let i = 11; i >= 0; i--) {
-          const data = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-          const nome = `${monthNames[data.getMonth()]}/${data.getFullYear().toString().slice(2)}`;
+        let currentDate = new Date(novaInicio);
+        while (currentDate <= novaFim) {
+          const nome = `${monthNames[currentDate.getMonth()]}/${currentDate.getFullYear().toString().slice(2)}`;
           meses.push({
             name: nome,
-            key: `${data.getFullYear()}-${(data.getMonth() + 1).toString().padStart(2, '0')}`,
+            key: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`,
             receita: 0,
-            despesa: 0
+            despesa: 0,
           });
+          currentDate.setMonth(currentDate.getMonth() + 1);
         }
-
         return meses;
       };
 
       fetchDadosComDatas(novaInicio, novaFim, gerarUltimos12Meses());
-    }
-
-    else if (opcao === 'anoAtual') {
-      novaInicio = new Date(hoje.getFullYear(), 0, 1);
+    } else if (opcao === 'anoAtual') {
+      
       novaFim = new Date(hoje.getFullYear(), 11, 31, 23, 59, 59);
-      fetchDadosComDatas(novaInicio, novaFim);
-    }
+      
+      novaInicio = new Date(hoje.getFullYear(), 0, 1);
+      novaInicio.setMonth(novaInicio.getMonth() - 11);
+      novaFim    = new Date(hoje.getFullYear(), 11, 31, 23, 59, 59);
+      // Gera os 12 meses do ano corrente
+      const mesesAnoAtual = monthNames.map((name, i) => ({
+        name,                                   // "Jan", "Fev"…
+        key: `${hoje.getFullYear()}-${String(i + 1).padStart(2, '0')}`,
+        receita: 0,
+        despesa: 0,
+      }));
 
-    else if (opcao === 'anoAnterior') {
+      // Passa a lista pronta para o fetch
+      fetchDadosComDatas(novaInicio, novaFim, mesesAnoAtual);
+    } else if (opcao === 'anoAnterior') {
       novaInicio = new Date(hoje.getFullYear() - 1, 0, 1);
       novaFim = new Date(hoje.getFullYear() - 1, 11, 31, 23, 59, 59);
       fetchDadosComDatas(novaInicio, novaFim);
-    }
-
-    else {
+    } else {
       console.warn('Filtro de data inválido:', opcao);
       return;
     }
@@ -148,32 +173,71 @@ export function ValuesProvider({ children }) {
       const resTransacoes = await axios.get('/api/transacoes/listar', { params });
       setTranscaoes(resTransacoes.data);
 
-      const initialData = mesesPersonalizados ?? monthNames.map((name, i) => ({
-        name,
-        key: `${new Date().getFullYear()}-${(i + 1).toString().padStart(2, '0')}`,
-        receita: 0,
-        despesa: 0
-      }));
+      // Usa meses personalizados se vierem, senão gera dinamicamente
+      const initialData = mesesPersonalizados ? [...mesesPersonalizados] : (() => {
+        const data = [];
+        const currentDate = new Date(inicioData);
+        while (currentDate <= fimData) {
+          data.push({
+            name: `${monthNames[currentDate.getMonth()]}/${currentDate.getFullYear().toString().slice(2)}`,
+            key: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
+            receita: 0,
+            despesa: 0,
+          });
+          currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+        return data;
+      })();
+
+      const encontrarItemPorData = (dataParcela, createIfMissing = true) => {
+        const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+        let item = initialData.find(i => i.key === key);
+
+        if (!item && createIfMissing) {
+          item = {
+            name: `${monthNames[dataParcela.getMonth()]}/${dataParcela.getFullYear().toString().slice(2)}`,
+            key,
+            receita: 0,
+            despesa: 0,
+          };
+          initialData.push(item);
+        }
+
+        return item;
+      };
 
       resTransacoes.data.forEach((transacao) => {
         const [dia, mes, ano] = transacao.dataTransacao.split('/');
-        const key = `${ano}-${mes.padStart(2, '0')}`;
+        const dataBase = new Date(`${ano}-${mes}-${dia}`);
 
-        const mesData = initialData.find((item) => item.key === key);
-        if (mesData) {
-          if (transacao.tipo === 'RECEITA') {
-            mesData.receita += transacao.valor;
-          } else if (transacao.tipo === 'DESPESA') {
-            mesData.despesa += transacao.valor;
+        if (transacao.tipo === 'RECEITA') {
+          const item = encontrarItemPorData(dataBase, !mesesPersonalizados);
+          if (item) item.receita += transacao.valor;
+
+        } else if (transacao.tipo === 'DESPESA') {
+          const parcelas = parseInt(transacao.parcelas || 0);
+          const valorParcela = parcelas > 0 ? transacao.valor / parcelas : transacao.valor;
+
+          for (let i = 0; i < (parcelas || 1); i++) {
+            const dataParcela = new Date(dataBase);
+            dataParcela.setMonth(dataBase.getMonth() + i);
+
+            const item = encontrarItemPorData(dataParcela, !mesesPersonalizados);
+            if (item) item.despesa += valorParcela;
           }
         }
       });
+
+      // Ordena se houve adições fora de ordem
+      initialData.sort((a, b) => new Date(a.key) - new Date(b.key));
 
       setCharts(initialData);
     } catch (err) {
       console.error('Erro ao atualizar dados com filtro de data:', err);
     }
   };
+
+
 
 
 
@@ -305,18 +369,17 @@ export function ValuesProvider({ children }) {
 
   const updateTransacao = async (data) => {
     try {
-      const transacaoOriginal = transacoes.find(t => t.id === data.id);
+      const transacaoOriginal = transacoes.find((t) => t.id === data.id);
       if (!transacaoOriginal) {
         console.warn('Transação original não encontrada para atualizar');
         return;
       }
 
       const response = await axios.put(`/api/transacoes/${data.id}`, data, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const transacaoAtualizada = response.data;
-
       const dataFormatada = new Date(transacaoAtualizada.dataTransacao).toLocaleDateString('pt-BR');
 
       const novaTransacao = {
@@ -326,87 +389,98 @@ export function ValuesProvider({ children }) {
         categoria: data.categoria ? data.categoria : 'Sem categoria',
       };
 
-      setTranscaoes((prev) =>
-        prev.map((t) => (t.id === data.id ? novaTransacao : t))
-      );
+      setTranscaoes((prev) => prev.map((t) => (t.id === data.id ? novaTransacao : t)));
 
       const valorAntigo = parseFloat(transacaoOriginal.valor);
       const valorNovo = parseFloat(data.valor);
+      const parcelasAntiga = parseInt(transacaoOriginal.parcelas || 0);
+      const parcelasNova = parseInt(data.parcelas || 0);
 
-      // Ajusta receita e despesa corretamente, mesmo que o tipo mude
-      if (transacaoOriginal.tipo === 'RECEITA') {
-        setReceita((prev) => prev - valorAntigo);
-      } else if (transacaoOriginal.tipo === 'DESPESA') {
-        setDespesa((prev) => prev - valorAntigo);
-      }
+      const dataAntiga = new Date(transacaoOriginal.dataTransacao.split('/').reverse().join('-'));
+      const dataNova = new Date(data.dataTransacao);
 
-      if (data.tipo === 'RECEITA') {
-        setReceita((prev) => prev + valorNovo);
-      } else if (data.tipo === 'DESPESA') {
-        setDespesa((prev) => prev + valorNovo);
-      }
+      setReceita((prev) => {
+        let novoTotal = prev;
+        if (transacaoOriginal.tipo === 'RECEITA') {
+          novoTotal -= valorAntigo;
+        }
+        if (data.tipo === 'RECEITA') {
+          novoTotal += valorNovo;
+        }
+        return novoTotal;
+      });
 
-
-      // Mês antigo (baseado na data em formato pt-BR: "15/06/2025")
-      const [diaAntigo, mesAntigo] = transacaoOriginal.dataTransacao.split('/');
-      const mesIndexAntigo = parseInt(mesAntigo, 10) - 1;
-
-      // Mês novo (baseado na data atualizada em formato ISO: "2025-07-01")
-      const [anoNovo, mesNovo, diaNovo] = data.dataTransacao.split('-');
-      const mesIndexNovo = parseInt(mesNovo, 10) - 1;
+      setDespesa((prev) => {
+        let novoTotal = prev;
+        if (transacaoOriginal.tipo === 'DESPESA') {
+          novoTotal -= valorAntigo;
+        }
+        if (data.tipo === 'DESPESA') {
+          novoTotal += valorNovo;
+        }
+        return novoTotal;
+      });
 
       setCharts((prev) => {
-        const updated = [...prev];
+        const updated = prev.map((item) => ({ ...item }));
 
-        // Remove do mês antigo
-        const mesAntigoChart = { ...updated[mesIndexAntigo] };
-        if (transacaoOriginal.tipo === 'RECEITA') {
-          mesAntigoChart.receita -= valorAntigo;
-        } else if (transacaoOriginal.tipo === 'DESPESA') {
-          mesAntigoChart.despesa -= valorAntigo;
+        // Remover parcelas antigas
+        const valorParcelaAntiga = parcelasAntiga > 0 ? valorAntigo / parcelasAntiga : valorAntigo;
+        for (let i = 0; i < (parcelasAntiga || 1); i++) {
+          const dataParcela = new Date(dataAntiga);
+          dataParcela.setMonth(dataAntiga.getMonth() + i);
+          const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+          const item = updated.find((i) => i.key === key);
+          if (item) {
+            if (transacaoOriginal.tipo === 'RECEITA') {
+              item.receita -= valorParcelaAntiga;
+            } else if (transacaoOriginal.tipo === 'DESPESA') {
+              item.despesa -= valorParcelaAntiga;
+            }
+          }
         }
-        updated[mesIndexAntigo] = mesAntigoChart;
 
-        // Adiciona no mês novo
-        const mesNovoChart = { ...updated[mesIndexNovo] };
-        if (data.tipo === 'RECEITA') {
-          mesNovoChart.receita += valorNovo;
-        } else if (data.tipo === 'DESPESA') {
-          mesNovoChart.despesa += valorNovo;
+        // Adicionar parcelas novas
+        const valorParcelaNova = parcelasNova > 0 ? valorNovo / parcelasNova : valorNovo;
+        for (let i = 0; i < (parcelasNova || 1); i++) {
+          const dataParcela = new Date(dataNova);
+          dataParcela.setMonth(dataNova.getMonth() + i);
+          const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+          const item = updated.find((i) => i.key === key);
+          if (item) {
+            if (data.tipo === 'RECEITA') {
+              item.receita += valorParcelaNova;
+            } else if (data.tipo === 'DESPESA') {
+              item.despesa += valorParcelaNova;
+            }
+          }
         }
-        updated[mesIndexNovo] = mesNovoChart;
 
         return updated;
       });
-
     } catch (err) {
       console.error('Erro ao atualizar transação', err);
     }
   };
 
 
-
-
-
   const novaTransacao = async (data) => {
     try {
       const transacao = await axios.post('/api/transacoes', data, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
-
-      // Adiciona id único
+      const dataFormatada = new Date(transacao.data.dataTransacao).toLocaleDateString('pt-BR');
       const transacaoComId = {
         ...data,
         id: transacao.data.id,
-        dataTransacao: new Date(transacao.data.dataTransacao).toLocaleDateString('pt-BR'),
+        dataTransacao: dataFormatada,
         valorFormatado: formatarValorCompleto(transacao.data.valor),
         categoria: data.categoria ? data.categoria : 'Sem categoria',
       };
 
       setTranscaoes((prev) => {
         const todas = [...prev, transacaoComId];
-
         return todas.sort((a, b) => {
           const dataA = new Date(a.dataTransacao.split('/').reverse().join('-'));
           const dataB = new Date(b.dataTransacao.split('/').reverse().join('-'));
@@ -414,36 +488,36 @@ export function ValuesProvider({ children }) {
         });
       });
 
-
-
+      const valorFloat = parseFloat(data.valor);
       if (data.tipo === 'RECEITA') {
-        setReceita((prev) => prev + parseFloat(data.valor));
+        setReceita((prev) => prev + valorFloat);
       } else if (data.tipo === 'DESPESA') {
-        setDespesa((prev) => prev + parseFloat(data.valor));
+        setDespesa((prev) => prev + valorFloat);
       }
 
-      const [dia, mes, ano] = data.dataTransacao.split('-');
-      const mesIndex = parseInt(mes, 10) - 1;
+      const dataBase = new Date(data.dataTransacao);
+      const parcelas = parseInt(data.parcelas || 0);
+      const valorParcela = parcelas > 0 ? valorFloat / parcelas : valorFloat;
 
       setCharts((prev) => {
-        // Copia o array do estado atual
-        const updated = [...prev];
+        const updated = prev.map((item) => ({ ...item }));
 
-        // Cria uma cópia do objeto do mês que será alterado para evitar mutação direta
-        const mesAtualizado = { ...updated[mesIndex] };
-
-        if (data.tipo === 'RECEITA') {
-          mesAtualizado.receita += parseFloat(data.valor);
-        } else if (data.tipo === 'DESPESA') {
-          mesAtualizado.despesa += parseFloat(data.valor);
+        for (let i = 0; i < (parcelas || 1); i++) {
+          const dataParcela = new Date(dataBase);
+          dataParcela.setMonth(dataBase.getMonth() + i);
+          const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+          const item = updated.find((i) => i.key === key);
+          if (item) {
+            if (data.tipo === 'RECEITA') {
+              item.receita += valorParcela;
+            } else if (data.tipo === 'DESPESA') {
+              item.despesa += valorParcela;
+            }
+          }
         }
-
-        // Substitui o objeto no índice com a cópia atualizada
-        updated[mesIndex] = mesAtualizado;
 
         return updated;
       });
-
     } catch (err) {
       console.error('Erro ao adicionar transação', err);
     }
@@ -453,13 +527,13 @@ export function ValuesProvider({ children }) {
 
   const deletarTransacao = async (id) => {
     try {
-      const transacao = transacoes.find(t => t.id === id);
+      const transacao = transacoes.find((t) => t.id === id);
       if (!transacao) {
         console.warn('Transação não encontrada para deletar');
         return;
       }
 
-      await axios.delete('/api/transacoes/delete/' + id);
+      await axios.delete(`/api/transacoes/delete/${id}`);
 
       setTranscaoes((prev) => prev.filter((t) => t.id !== id));
 
@@ -469,26 +543,31 @@ export function ValuesProvider({ children }) {
         setDespesa((prev) => prev - parseFloat(transacao.valor));
       }
 
-      const [dia, mes, ano] = transacao.dataTransacao.split('/');
-      const mesIndex = parseInt(mes, 10) - 1;
+      const valorTotal = parseFloat(transacao.valor);
+      const parcelas = parseInt(transacao.parcelas || 0);
+      const valorParcela = parcelas > 0 ? valorTotal / parcelas : valorTotal;
+
+      const dataBase = new Date(transacao.dataTransacao.split('/').reverse().join('-'));
 
       setCharts((prev) => {
-        const updated = [...prev];
+        const updated = prev.map((item) => ({ ...item }));
 
-        // Cria cópia do objeto do mês para evitar mutação direta
-        const mesAtualizado = { ...updated[mesIndex] };
-
-        if (transacao.tipo === 'RECEITA') {
-          mesAtualizado.receita -= parseFloat(transacao.valor);
-        } else if (transacao.tipo === 'DESPESA') {
-          mesAtualizado.despesa -= parseFloat(transacao.valor);
+        for (let i = 0; i < (parcelas || 1); i++) {
+          const dataParcela = new Date(dataBase);
+          dataParcela.setMonth(dataBase.getMonth() + i);
+          const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
+          const item = updated.find((i) => i.key === key);
+          if (item) {
+            if (transacao.tipo === 'RECEITA') {
+              item.receita -= valorParcela;
+            } else if (transacao.tipo === 'DESPESA') {
+              item.despesa -= valorParcela;
+            }
+          }
         }
-
-        updated[mesIndex] = mesAtualizado;
 
         return updated;
       });
-
     } catch (err) {
       console.error('Erro ao deletar transação', err);
     }
