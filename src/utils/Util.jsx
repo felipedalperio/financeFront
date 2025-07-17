@@ -2,7 +2,7 @@ import { FaHome, FaShoppingBasket, FaCar, FaHeartbeat, FaUtensils, FaBook, FaPla
 import { MdSchool, MdLocalHospital, MdSportsSoccer } from 'react-icons/md'
 import { BsGlobe } from 'react-icons/bs'
 import { BiLineChart, BiLineChartDown  } from "react-icons/bi";
-
+import Swal from 'sweetalert2';
 
 export function formatarValorCompleto(valor, moeda = 'BRL', locale = 'pt-BR') {
   return new Intl.NumberFormat(locale, {
@@ -76,3 +76,13 @@ export function EscolherIcon(name, size) {
     return <BsGlobe size={size} />
   }
 }
+
+export function alertaConteudoIndisponivel() {
+  Swal.fire({
+    icon: 'info',
+    title: 'Conteúdo Indisponível',
+    html: 'Este conteúdo está em desenvolvimento e será disponibilizado em breve. Obrigado pela compreensão!',
+    confirmButtonText: 'Ok',
+  });
+}
+

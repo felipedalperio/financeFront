@@ -10,6 +10,7 @@ import { PiTargetBold } from "react-icons/pi";
 import { BsGear } from "react-icons/bs";
 import { VscGraph } from "react-icons/vsc";
 import { TbReportMoney } from "react-icons/tb";
+import { alertaConteudoIndisponivel } from "../utils/Util";
 
 
 export default function Menu() {
@@ -26,11 +27,11 @@ export default function Menu() {
       <ul className="flex flex-col mt-16 gap-6 text-[14px] pl-6 w-full">
         <li className="flex gap-2 bg-[#ececec] text-[#1f273b] rounded-l-2xl p-2 font-semibold"><AiOutlineHome size={20} /> Dashboard</li>
         <li onClick={() => setShowTransiction(true)} className="flex gap-2"><GrTransaction size={18} />Registrar Transferencia</li>
-        <li className="flex gap-2 font-semibold"><GrMoney size={18}/> Hístorico</li>
-        <li className="flex gap-2 font-semibold"><PiTargetBold size ={18} /> Metas</li>
-        <li className="flex gap-2 font-semibold"><TbReportMoney size ={18} /> Orçamento</li>
-        <li className="flex gap-2 font-semibold"><VscGraph size ={18} /> Evolução</li>
-        <li className="flex gap-2 font-semibold"><BsGear size ={18} /> Configuração</li>
+        <li className="flex gap-2 font-semibold" onClick={() => alertaConteudoIndisponivel()}><GrMoney size={18}/> Histórico</li>
+        <li className="flex gap-2 font-semibold" onClick={() => alertaConteudoIndisponivel()}><PiTargetBold size ={18} /> Metas</li>
+        <li className="flex gap-2 font-semibold" onClick={() => alertaConteudoIndisponivel()}><TbReportMoney size ={18} /> Orçamento</li>
+        <li className="flex gap-2 font-semibold" onClick={() => alertaConteudoIndisponivel()}><VscGraph size ={18} /> Evolução</li>
+        <li className="flex gap-2 font-semibold" onClick={() => alertaConteudoIndisponivel()}><BsGear size ={18} /> Configuração</li>
       </ul>
 
       {showTransiction && (

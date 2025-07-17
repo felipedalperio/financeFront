@@ -74,7 +74,7 @@ export default function Grid() {
 
 
     return (
-        <Box className="h-full">
+        <Box>
             <h2 className="text-xl font-bold text-gray-600">Histórico de transações</h2>
             <DataGrid style={{ maxHeight: '400px', }}
                 rows={transacoes}

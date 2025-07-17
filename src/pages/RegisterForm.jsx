@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';   // se for Next.js, troque por  next/router
 import { useAuth } from '../context/AuthContext';
 
-export default function LoginForm() {
-  const { login } = useAuth();
+export default function RegisterForm() {
+  const { register } = useAuth();
   const navigate = useNavigate();
 
+  const [nome,  setNome]  = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
@@ -13,10 +14,10 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, senha); 
-      navigate('/');             
-    } catch {
-      setError('Credenciais inválidas');
+      await register(nome, email, senha); 
+      navigate('/');                      
+    } catch (err) {
+      setError('Não foi possível concluir o cadastro');
     }
   };
 
@@ -27,10 +28,20 @@ export default function LoginForm() {
         className="w-full max-w-md space-y-4 p-8 bg-white shadow rounded-md"
       >
         <h2 className="text-lg font-bold text-center tracking-widest">
-          FAÇA SEU LOGIN.
+          CRIE SUA CONTA
         </h2>
 
-        {/* Email */}
+        <div>
+          <label className="block text-sm">Nome</label>
+          <input
+            type="text"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            required
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
         <div>
           <label className="block text-sm">Email</label>
           <input
@@ -42,7 +53,6 @@ export default function LoginForm() {
           />
         </div>
 
-        {/* Senha */}
         <div>
           <label className="block text-sm">Senha</label>
           <input
@@ -58,16 +68,8 @@ export default function LoginForm() {
           type="submit"
           className="w-full mt-6 bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
         >
-          Entrar
+          Cadastrar
         </button>
-
-        {/* Link para cadastro */}
-        <p className="text-sm text-center">
-          Não tem conta?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline">
-            Cadastre‑se
-          </Link>
-        </p>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </form>

@@ -21,6 +21,25 @@ export default function Dashboard() {
     const { user, logout } = useAuth();
     const { despesa, receita, buddle, aplicarFiltroData } = useValues();
 
+    function MinhaData() {
+        const hoje = new Date();
+
+        const dataFormatada = hoje.toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        return (
+            <div className="flex flex-col">
+                <span className="font-bold text-md md:text-xl lg:text-gray-800">Olá, {user.nome}!</span>
+                <span className="italic text-xs md:text-sm lg:text-gray-500">
+                    Hoje é dia {dataFormatada}
+                </span>
+            </div>
+        );
+    }
+
 
     return (
         <div className="lg:px-5 lg:bg-[#ececec] pt-10 md:pb-20 lg:pb-8 flex flex-col h-min-screen w-full gap-1 rounded-l-4xl ">
@@ -35,10 +54,7 @@ export default function Dashboard() {
                     <div className="flex gap-2">
                         <img className="rounded-4xl w-14 h-14 md:w-20 md:h-20" alt="" src="https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png" />
                         <div className="flex items-center justify-between w-full">
-                            <div className="flex flex-col">
-                                <span className="font-bold text-md md:text-xl lg:text-gray-800"> Hi, {user.nome}! </span>
-                                <span className="italic text-xs md:text-sm lg:text-gray-500"> Today is friday 25 june 2025 </span>
-                            </div>
+                            {MinhaData()}
                             <div className="flex gap-2 md:hidden self-start">
                                 <FaRegBell size={25} />
                                 <CgProfile size={25} />

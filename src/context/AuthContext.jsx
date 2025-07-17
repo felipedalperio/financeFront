@@ -5,17 +5,25 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // 👈 novo
 
-  // Carrega token e usuário automaticamente
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+  const userData = localStorage.getItem('user');
 
-    if (token && userData) {
+  if (token && userData) {
+    try {
+      const parsedUser = JSON.parse(userData);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(JSON.parse(userData));
+      setUser(parsedUser);
+    } catch (err) {
+      console.error('Usuário mal‑formado:', err);
     }
-  }, []);
+  }
+
+  setLoading(false);
+}, []);
+
 
   const login = async (email, senha) => {
     try {
@@ -24,7 +32,6 @@ export function AuthProvider({ children }) {
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(usuario));
-
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(usuario);
     } catch (error) {
@@ -42,12 +49,10 @@ export function AuthProvider({ children }) {
       localStorage.setItem('user', JSON.stringify(usuario));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(usuario);
-
     } catch (error) {
       console.error('Erro no registro:', error);
     }
   };
-
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -57,7 +62,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );
