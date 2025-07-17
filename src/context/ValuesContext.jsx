@@ -75,6 +75,7 @@ export function ValuesProvider({ children }) {
 
         for (let i = 0; i < parcelas; i++) {
           const dataParcela = new Date(dataBase);
+          dataParcela.setDate(1);
           dataParcela.setMonth(dataParcela.getMonth() + i);
 
           const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
@@ -220,6 +221,7 @@ export function ValuesProvider({ children }) {
 
           for (let i = 0; i < (parcelas || 1); i++) {
             const dataParcela = new Date(dataBase);
+            dataParcela.setDate(1);
             dataParcela.setMonth(dataBase.getMonth() + i);
 
             const item = encontrarItemPorData(dataParcela, !mesesPersonalizados);
@@ -428,6 +430,7 @@ export function ValuesProvider({ children }) {
         const valorParcelaAntiga = parcelasAntiga > 0 ? valorAntigo / parcelasAntiga : valorAntigo;
         for (let i = 0; i < (parcelasAntiga || 1); i++) {
           const dataParcela = new Date(dataAntiga);
+          dataParcela.setDate(1);
           dataParcela.setMonth(dataAntiga.getMonth() + i);
           const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
           const item = updated.find((i) => i.key === key);
@@ -444,6 +447,7 @@ export function ValuesProvider({ children }) {
         const valorParcelaNova = parcelasNova > 0 ? valorNovo / parcelasNova : valorNovo;
         for (let i = 0; i < (parcelasNova || 1); i++) {
           const dataParcela = new Date(dataNova);
+          dataParcela.setDate(1);
           dataParcela.setMonth(dataNova.getMonth() + i);
           const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
           const item = updated.find((i) => i.key === key);
@@ -504,6 +508,7 @@ export function ValuesProvider({ children }) {
 
         for (let i = 0; i < (parcelas || 1); i++) {
           const dataParcela = new Date(dataBase);
+          dataParcela.setDate(1);
           dataParcela.setMonth(dataBase.getMonth() + i);
           const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
           const item = updated.find((i) => i.key === key);
@@ -554,6 +559,7 @@ export function ValuesProvider({ children }) {
 
         for (let i = 0; i < (parcelas || 1); i++) {
           const dataParcela = new Date(dataBase);
+          dataParcela.setDate(1);
           dataParcela.setMonth(dataBase.getMonth() + i);
           const key = `${dataParcela.getFullYear()}-${String(dataParcela.getMonth() + 1).padStart(2, '0')}`;
           const item = updated.find((i) => i.key === key);
