@@ -7,19 +7,20 @@ import { FaRegEdit } from "react-icons/fa";
 import { EscolherIcon, IconeTipo } from '../utils/Util';
 import TransacaoModal from './TransacaoForm';
 import { useEffect, useState } from 'react';
+import Spinner from '../utils/Spinner';
 
 export default function Grid() {
-    const { transacoes, deletarTransacao } = useValues();
+    const { transacoes, deletarTransacao, loading } = useValues();
     const [showTransiction, setShowTransiction] = useState(false)
     const [update, setUpdate] = useState(null)
 
     useEffect(() => {
         setShowTransiction(update != null)
-    },[update])
+    }, [update])
 
     const close = () => {
-      setShowTransiction(false)
-      setUpdate(null)
+        setShowTransiction(false)
+        setUpdate(null)
     }
 
     const columns = [
@@ -29,7 +30,7 @@ export default function Grid() {
             flex: 2,
             minWidth: 200,
             renderCell: (params) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px'}}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div className='flex gap-2'>
                         {IconeTipo(params.row.tipo, 16)}
                         {EscolherIcon(params.row.categoria, 16)}
@@ -42,7 +43,7 @@ export default function Grid() {
         {
             field: 'categoria',
             headerName: 'Categoria',
-            flex:1,
+            flex: 1,
             minWidth: 160,
             renderCell: (params) => (
                 <div className="flex items-center justify-center mt-3">
@@ -76,35 +77,39 @@ export default function Grid() {
     return (
         <Box>
             <h2 className="text-xl font-bold text-gray-600">Histórico de transações</h2>
-            <DataGrid style={{ maxHeight: '400px', }}
-                rows={transacoes}
-                columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                disableSelectionOnClick
-                hideFooter
-                disableColumnResize
-                sx={{
-                    maxHeight: 400,
-                    // Remove TODAS as bordas entre colunas
-                    '& .MuiDataGrid-columnSeparator': {
-                        display: 'none',
-                    },
-                    // Remove bordas das células
-                    '& .MuiDataGrid-cell': {
-                        borderRight: 'none',
-                    },
-                    // Remove bordas do cabeçalho
-                    '& .MuiDataGrid-columnHeaders': {
-                        borderRight: 'none',
-                        '& .MuiDataGrid-columnHeader': {
+            {loading ? (
+                <Spinner />
+            ) : (
+                <DataGrid style={{ maxHeight: '400px', }}
+                    rows={transacoes}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    disableSelectionOnClick
+                    hideFooter
+                    disableColumnResize
+                    sx={{
+                        maxHeight: 400,
+                        // Remove TODAS as bordas entre colunas
+                        '& .MuiDataGrid-columnSeparator': {
+                            display: 'none',
+                        },
+                        // Remove bordas das células
+                        '& .MuiDataGrid-cell': {
                             borderRight: 'none',
                         },
-                    },
-                    // Remove borda externa (opcional)
-                    border: 'none',
-                }}
-            />
+                        // Remove bordas do cabeçalho
+                        '& .MuiDataGrid-columnHeaders': {
+                            borderRight: 'none',
+                            '& .MuiDataGrid-columnHeader': {
+                                borderRight: 'none',
+                            },
+                        },
+                        // Remove borda externa (opcional)
+                        border: 'none',
+                    }}
+                />
+            )}
 
             {showTransiction && (
                 <TransacaoModal

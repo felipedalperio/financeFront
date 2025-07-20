@@ -15,6 +15,7 @@ export function ValuesProvider({ children }) {
   const [charts, setCharts] = useState([]);
   const [inicio, setInicio] = useState('');
   const [fim, setFim] = useState('');
+  const [loading, setLoading] = useState(true);
   const usedColors = new Set();
 
   const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -28,6 +29,7 @@ export function ValuesProvider({ children }) {
     }
   }
   const fetchDados = async () => {
+    setLoading(true);
     try {
       const resReceita = await axios.get('/api/transacoes/receitas', {
         params: inicio && fim ? { inicio, fim } : {}
@@ -88,6 +90,8 @@ export function ValuesProvider({ children }) {
 
     } catch (err) {
       console.error('Erro ao atualizar dados', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,12 +129,12 @@ export function ValuesProvider({ children }) {
 
       fetchDadosComDatas(novaInicio, novaFim, gerarUltimos12Meses());
     } else if (opcao === 'anoAtual') {
-      
+
       novaFim = new Date(hoje.getFullYear(), 11, 31, 23, 59, 59);
-      
+
       novaInicio = new Date(hoje.getFullYear(), 0, 1);
       novaInicio.setMonth(novaInicio.getMonth() - 11);
-      novaFim    = new Date(hoje.getFullYear(), 11, 31, 23, 59, 59);
+      novaFim = new Date(hoje.getFullYear(), 11, 31, 23, 59, 59);
       // Gera os 12 meses do ano corrente
       const mesesAnoAtual = monthNames.map((name, i) => ({
         name,                                   // "Jan", "Fev"…
@@ -591,7 +595,8 @@ export function ValuesProvider({ children }) {
       deletarTransacao,
       buddle,
       updateTransacao,
-      aplicarFiltroData
+      aplicarFiltroData,
+      loading
     }}>
       {children}
     </ValuesContext.Provider>

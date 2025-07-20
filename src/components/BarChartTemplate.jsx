@@ -2,10 +2,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { SlOptions } from "react-icons/sl";
 import { useValues } from '../context/ValuesContext'
 import { formatarValorCompleto } from '../utils/Util';
+import Spinner from '../utils/Spinner';
 
 export default function BarChartTemplate() {
 
-    const { charts } = useValues();
+    const { charts, loading } = useValues();
 
     // Tooltip customizado
     const CustomTooltip = ({ active, payload, label }) => {
@@ -62,21 +63,28 @@ export default function BarChartTemplate() {
 
             </div>
             <div className='ml-[-30px] md:ml-[-25px] lg:ml-0'>
-                <ResponsiveContainer width="100%" height={290}>
-                <BarChart data={charts} barCategoryGap={0} barGap={0}>
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={formatarAbreviado} />
+                {loading ? (
+                    <div className="flex items-center justify-center" style={{ height: 290}}>
+                        <Spinner />
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height={290}>
+                        <BarChart data={charts} barCategoryGap={0} barGap={0}>
+                            <XAxis dataKey="name" />
+                            <YAxis tickFormatter={formatarAbreviado} />
 
-                    <Tooltip
-                        content={<CustomTooltip />}
-                        cursor={false}
-                        contentStyle={{ background: "#fff", borderRadius: "4px" }}
-                    />
+                            <Tooltip
+                                content={<CustomTooltip />}
+                                cursor={false}
+                                contentStyle={{ background: "#fff", borderRadius: "4px" }}
+                            />
 
-                    <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
-                    <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
-                </BarChart>
-            </ResponsiveContainer>
+                            <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
+                            <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
+
             </div>
         </div>
     )

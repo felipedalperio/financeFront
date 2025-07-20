@@ -15,11 +15,12 @@ import { IoIosArrowDown } from "react-icons/io";
 import { formatarValor } from '../utils/Util';
 import { MdLogout } from "react-icons/md";
 import FiltroData from "./FiltroData";
+import Spinner from "../utils/Spinner";
 
 
 export default function Dashboard() {
     const { user, logout } = useAuth();
-    const { despesa, receita, buddle, aplicarFiltroData } = useValues();
+    const { despesa, receita, buddle, aplicarFiltroData, loading } = useValues();
 
     function MinhaData() {
         const hoje = new Date();
@@ -85,7 +86,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex font-bold items-end pb-3 px-3">
                             <span className="text-lg mr-4 lg:text-gray-500"> R$ </span>
-                            <span className="text-3xl lg:text-gray-800"> {formatarValor(receita - despesa)} </span>
+                            <span className={`text-3xl lg:text-gray-800 ${loading ? 'blur-sm' : ''}`}> {formatarValor(receita - despesa)} </span>
                         </div>
                     </div>
                     <div className="flex gap-2 lg:flex-col lg:gap-6 rounded-t-2xl p-3 pt-6 lg:rounded-none lg:p-0 lg:bg-[#ececec]">
@@ -96,7 +97,7 @@ export default function Dashboard() {
                             </div>
                             <div className="font-semibold flex gap-2 md:gap-5  items-end pb-2  border-1 border-[#75bf64] border-b-[#ececec] ">
                                 <span className="text-md">R$</span>
-                                <span className="text-xl md:text-3xl">{formatarValor(receita)}</span>
+                                <span className={`text-xl md:text-3xl ${loading ? 'blur-sm' : ''}`}>{formatarValor(receita)}</span>
                             </div>
 
                         </div>
@@ -107,14 +108,14 @@ export default function Dashboard() {
                             </div>
                             <div className="font-semibold flex gap-2 md:gap-5 items-end pb-2 border-1 border-[#ececec] border-b-gray-800  lg:border-1 lg:border-gray-800 lg:border-b-[#898989] ">
                                 <span className="text-xl">R$</span>
-                                <span className="text-xl md:text-3xl">{formatarValor(despesa)}</span>
+                                <span className={`text-xl md:text-3xl ${loading ? 'blur-sm' : ''}`}>{formatarValor(despesa)}</span>
                             </div>
 
                         </div>
                     </div>
                     <div className="flex hidden lg:flex bg-white rounded-lg py-4 flex-col overflow-hidden">
                         <div className="relative w-full min-h-[200px] flex jutify-center items-center">
-                            <DonutChart despesa={despesa} receita={receita} />
+                            <DonutChart despesa={despesa} receita={receita} loading={loading} />
                         </div>
                     </div>
                 </div>
@@ -126,29 +127,38 @@ export default function Dashboard() {
                         <div className="bg-white rounded-lg py-4 relative w-full h-[400px] flex items-center justify-center flex-col">
                             <h3 className="mb-1 px-3 text-xl font-bold text-gray-600">Top 5 maiores Despesas</h3>
                             <div className="w-full max-w-70 relative h-screen">
-                                {buddle.length > 0 ? (
-                                    buddle.map((b, i) => (
-                                        <motion.div
-                                            key={i}
-                                            className={`absolute ${b.color} flex-col opacity-75 text-white text-center rounded-full flex justify-center items-center`}
-                                            style={{
-                                                width: b.size,
-                                                height: b.size,
-                                                top: b.top,
-                                                left: b.left,
-                                                right: b.right,
-                                                bottom: b.bottom,
-                                            }}
-                                            animate={{ y: [0, -15, 0] }}
-                                            transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
-                                        >
-                                            <span className="text-sm px-1">{b.label}</span>
-                                            <span className="text-xs px-1 font-bold">{b.porcentagem}%</span>
-                                        </motion.div>
-                                    ))
+                                {loading ? (
+                                    <div className="absolute inset-0 flex justify-center items-center z-50">
+                                        <Spinner />
+                                    </div>
                                 ) : (
-                                    <div className="text-center text-sm text-gray-500">Sem registro</div>
+                                    <>
+                                        {buddle.length > 0 ? (
+                                            buddle.map((b, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    className={`absolute ${b.color} flex-col opacity-75 text-white text-center rounded-full flex justify-center items-center`}
+                                                    style={{
+                                                        width: b.size,
+                                                        height: b.size,
+                                                        top: b.top,
+                                                        left: b.left,
+                                                        right: b.right,
+                                                        bottom: b.bottom,
+                                                    }}
+                                                    animate={{ y: [0, -15, 0] }}
+                                                    transition={{ repeat: Infinity, duration: 3 + i, ease: "easeInOut" }}
+                                                >
+                                                    <span className="text-sm px-1">{b.label}</span>
+                                                    <span className="text-xs px-1 font-bold">{b.porcentagem}%</span>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center text-sm text-gray-500">Sem registro</div>
+                                        )}
+                                    </>
                                 )}
+
                             </div>
                         </div>
                     </div>
