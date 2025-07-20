@@ -61,7 +61,7 @@ export function ValuesProvider({ children }) {
       // 2. percorre as transações
       resTransacoes.data.forEach((transacao) => {
         const [dia, mes, ano] = transacao.dataTransacao.split('/');
-        const dataBase = new Date(`${ano}-${mes}-${dia}`);
+        const dataBase = new Date(`${ano}-${mes}-${dia}T12:00:00`);
 
         // RECEITA ───────────────────────────────
         if (transacao.tipo === 'RECEITA') {
@@ -213,7 +213,7 @@ export function ValuesProvider({ children }) {
 
       resTransacoes.data.forEach((transacao) => {
         const [dia, mes, ano] = transacao.dataTransacao.split('/');
-        const dataBase = new Date(`${ano}-${mes}-${dia}`);
+        const dataBase = new Date(`${ano}-${mes}-${dia}T12:00:00`);
 
         if (transacao.tipo === 'RECEITA') {
           const item = encontrarItemPorData(dataBase, !mesesPersonalizados);
@@ -402,8 +402,13 @@ export function ValuesProvider({ children }) {
       const parcelasAntiga = parseInt(transacaoOriginal.parcelas || 0);
       const parcelasNova = parseInt(data.parcelas || 0);
 
-      const dataAntiga = new Date(transacaoOriginal.dataTransacao.split('/').reverse().join('-'));
-      const dataNova = new Date(data.dataTransacao);
+      // dataAntiga: vem em dd/mm/yyyy
+      const [diaAntigo, mesAntigo, anoAntigo] = transacaoOriginal.dataTransacao.split('/');
+      const dataAntiga = new Date(Number(anoAntigo), Number(mesAntigo) - 1, Number(diaAntigo));
+
+      // dataNova: assume que está em yyyy-mm-dd
+      const [anoNovo, mesNovo, diaNovo] = data.dataTransacao.split('-');
+      const dataNova = new Date(Number(anoNovo), Number(mesNovo) - 1, Number(diaNovo));
 
       setReceita((prev) => {
         let novoTotal = prev;
@@ -503,7 +508,7 @@ export function ValuesProvider({ children }) {
         setDespesa((prev) => prev + valorFloat);
       }
 
-      const dataBase = new Date(data.dataTransacao);
+      const dataBase = new Date(`${data.dataTransacao}T12:00:00`);
       const parcelas = parseInt(data.parcelas || 0);
       const valorParcela = parcelas > 0 ? valorFloat / parcelas : valorFloat;
 
@@ -556,7 +561,9 @@ export function ValuesProvider({ children }) {
       const parcelas = parseInt(transacao.parcelas || 0);
       const valorParcela = parcelas > 0 ? valorTotal / parcelas : valorTotal;
 
-      const dataBase = new Date(transacao.dataTransacao.split('/').reverse().join('-'));
+      const partes = transacao.dataTransacao.split('/'); // ['dd', 'mm', 'yyyy']
+      const dataIso = `${partes[2]}-${partes[1]}-${partes[0]}T12:00:00`; // yyyy-mm-ddT12:00:00
+      const dataBase = new Date(dataIso);
 
       setCharts((prev) => {
         const updated = prev.map((item) => ({ ...item }));
