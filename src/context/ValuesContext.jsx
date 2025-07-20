@@ -161,6 +161,7 @@ export function ValuesProvider({ children }) {
 
 
   const fetchDadosComDatas = async (inicioData, fimData, mesesPersonalizados = null) => {
+    setLoading(true);
     try {
       const params = {
         inicio: inicioData.toISOString().split('T')[0],
@@ -240,6 +241,8 @@ export function ValuesProvider({ children }) {
       setCharts(initialData);
     } catch (err) {
       console.error('Erro ao atualizar dados com filtro de data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
