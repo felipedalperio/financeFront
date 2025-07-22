@@ -62,29 +62,45 @@ export default function BarChartTemplate() {
                 </div>
 
             </div>
-            <div className='ml-[-30px] md:ml-[-25px] lg:ml-0'>
+            <div className="ml-[-20px] md:ml-[-25px] lg:ml-0 overflow-hidden">
                 {loading ? (
-                    <div className="flex items-center justify-center" style={{ height: 290}}>
+                    <div className="flex items-center justify-center" style={{ height: 290 }}>
                         <Spinner />
                     </div>
                 ) : (
-                    <ResponsiveContainer width="100%" height={290}>
-                        <BarChart data={charts} barCategoryGap={0} barGap={0}>
-                            <XAxis dataKey="name" />
-                            <YAxis tickFormatter={formatarAbreviado} />
-
-                            <Tooltip
-                                content={<CustomTooltip />}
-                                cursor={false}
-                                contentStyle={{ background: "#fff", borderRadius: "4px" }}
-                            />
-
-                            <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
-                            <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div
+                        style={{
+                            maxWidth: '100%',               // Impede de ultrapassar o layout
+                            overflowX: 'auto',
+                            scrollbarWidth: 'none',         // Firefox
+                            msOverflowStyle: 'none',        // IE/Edge
+                            WebkitOverflowScrolling: 'touch'
+                        }}
+                        className="scroll-wrapper"
+                    >
+                        <div
+                            style={{
+                                width: '100%',     // Ajusta conforme a quantidade de dados
+                                minWidth: 600,
+                                height: 300
+                            }}
+                        >
+                            <ResponsiveContainer width="100%" height={290}>
+                                <BarChart data={charts} barCategoryGap={0} barGap={0}>
+                                    <XAxis dataKey="name" />
+                                    <YAxis tickFormatter={formatarAbreviado} />
+                                    <Tooltip
+                                        content={<CustomTooltip />}
+                                        cursor={false}
+                                        contentStyle={{ background: "#fff", borderRadius: "4px" }}
+                                    />
+                                    <Bar dataKey="despesa" fill="#cd4f4f" barSize={18} name="Saída" />
+                                    <Bar dataKey="receita" fill="#63b873" barSize={18} name="Entrada" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
                 )}
-
             </div>
         </div>
     )
