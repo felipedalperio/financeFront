@@ -26,8 +26,8 @@ export default function DonutChart({ despesa, receita, loading }) {
     ];
 
     return (
-        <div className="bg-white text-white rounded-lg p-4 flex-1">
-            <h3 className="text-gray-700 font-semibold">Progresso dos gastos</h3>
+        <div className="bg-white text-white rounded-lg p-4 pt-0 flex-1">
+            <h3 className="text-gray-700 font-semibold ">Progresso dos gastos</h3>
             <div className="flex items-center flex-col-reverse">
                 {/* Legenda personalizada */}
                 <div className="flex justify-start mt-4 gap-4 pl-4">
