@@ -10,7 +10,7 @@ import TipoListbox from './TipoListBox';
 export default function TransacaoModal({ onClose, update }) {
 
   const { novaTransacao, updateTransacao, categorias } = useValues();
-
+  const [loading, setLoading] = useState(false);
 
   const initialValue = update
     ? {
@@ -53,6 +53,7 @@ export default function TransacaoModal({ onClose, update }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
 
     const categoriaSelecionada = categorias.find(
       (cat) => cat.id === form.categoriaId
@@ -83,6 +84,8 @@ export default function TransacaoModal({ onClose, update }) {
 
 
     onClose();
+
+    setLoading(false);
   };
 
 
@@ -248,6 +251,7 @@ export default function TransacaoModal({ onClose, update }) {
             <button
               type="submit"
               className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
+              disabled={loading}
             >
               Salvar
             </button>
