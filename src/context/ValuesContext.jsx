@@ -395,7 +395,7 @@ export function ValuesProvider({ children }) {
         ...transacaoAtualizada,
         dataTransacao: dataFormatada,
         valorFormatado: formatarValorCompleto(transacaoAtualizada.valor),
-        categoria: data.categoria ? data.categoria : 'Sem categoria',
+        categoria: data.tipo === 'RECEITA' ? 'Entrada' : (data.categoria ? data.categoria : 'Sem categoria'),
       };
 
       setTranscaoes((prev) => prev.map((t) => (t.id === data.id ? novaTransacao : t)));
@@ -492,7 +492,7 @@ export function ValuesProvider({ children }) {
         id: transacao.data.id,
         dataTransacao: dataFormatada,
         valorFormatado: formatarValorCompleto(transacao.data.valor),
-        categoria: data.categoria ? data.categoria : 'Sem categoria',
+        categoria: data.tipo === 'RECEITA' ? 'Entrada' : (data.categoria ? data.categoria : 'Sem categoria'),
       };
 
       setTranscaoes((prev) => {

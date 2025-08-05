@@ -54,10 +54,24 @@ export default function TransacaoModal({ onClose, update }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
+    
+    let categoriaSelecionada;
 
-    const categoriaSelecionada = categorias.find(
-      (cat) => cat.id === form.categoriaId
-    );
+    if (form.tipo == 'DESPESA') { //so pega a categoria se for despesa
+      categoriaSelecionada = categorias.find(
+        (cat) => cat.id === form.categoriaId
+      );
+    }
+
+    // Se não encontrar a categoria pelo ID, procura pela categoria com nome "Outros"
+    if (!categoriaSelecionada && form.tipo == 'DESPESA') {
+      categoriaSelecionada = categorias.find(
+        (cat) => cat.nome?.toLowerCase() === "outros"
+      );
+      form.categoriaId = categoriaSelecionada.id
+    }
+
+
 
     const dataToSend = {
       ...form,

@@ -3,6 +3,7 @@ import { MdSchool, MdLocalHospital, MdSportsSoccer } from 'react-icons/md'
 import { BsGlobe } from 'react-icons/bs'
 import { BiLineChart, BiLineChartDown  } from "react-icons/bi";
 import Swal from 'sweetalert2';
+import { FaGift } from "react-icons/fa6";
 
 export function formatarValorCompleto(valor, moeda = 'BRL', locale = 'pt-BR') {
   return new Intl.NumberFormat(locale, {
@@ -69,6 +70,8 @@ export function EscolherIcon(name, size) {
         return <FaBook size={size} />
       case 'Hospital':
         return <MdLocalHospital size={size} />
+      case 'Presente':
+        return <FaGift size={size} />
       default:
         return <BsGlobe size={size} />
     }
